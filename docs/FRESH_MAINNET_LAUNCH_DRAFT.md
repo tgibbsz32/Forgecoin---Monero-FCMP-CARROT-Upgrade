@@ -65,3 +65,37 @@ The 400,000 floor imposes a minimum expected block interval of 200 seconds at 2,
 ## Future development: optional XMR/XTM merged-mining integration
 
 After ForgeCoin's own mainnet launch and stabilization, research an optional **Monero (XMR) + Tari (XTM)** merged-mining setup within ForgeCoin Desktop, including compatible external mining infrastructure, separate wallet support, secure key isolation, and pool integration. This roadmap item is *not* a plan to make ForgeCoin itself an auxiliary-POW chain, and it does **not** change ForgeCoin's existing consensus, block rewards, or launch scope.
+
+
+## Startup adjustment proposal and test — October 20, 2026
+
+A second exploratory Python simulation compared **fixed 500,000 difficulty for 90 blocks** against **fixed 500,000 for the first 10 mineable blocks, then a growing LWMA window from 10 to 90 history intervals**. The floor remains 400,000. Each of seven network scenarios ran 50 randomized trials, for 700 runs, measuring the first 90 block intervals.
+
+| Launch scenario | Fixed 90 (s/block) | Growing LWMA 10→90 (s/block) |
+| --- | ---: | ---: |
+| One 6.5 kH/s miner | 76.01 | 111.02 |
+| One 2 kH/s miner | 247.03 | 203.55 |
+| 6.5 kH/s, then 27 kH/s miner joins at block index 15 | 24.82 | 78.28 |
+| Ten 6.5 kH/s miners from genesis | 7.60 | 88.20 |
+| 250 kH/s miner from genesis | 1.98 | 81.48 |
+
+This supports investigating **adaptive 10→90 bootstrap** instead of a long fixed period, particularly to avoid extremely rapid early blocks with strong miners. **Not a security proof or final activation rule.** Exact genesis indexing, minimum usable samples, integer overflow and timestamps, reorg paths, miner templates and cross-platform consensus vectors must be tested in production C++ before deployment.
+
+### Timestamp attack literature and countermeasures
+
+See Zawy's [LWMA specification](https://github.com/zawy12/difficulty-algorithms/issues/3), [timestamp attack catalog](https://github.com/zawy12/difficulty-algorithms/issues/30), and [later recommendations](https://github.com/zawy12/difficulty-algorithms/issues/76). These document reverse/out-of-order timestamps, timewarp behavior, future-timestamp abuse, and tradeoffs in median-time-past, normalized solve intervals, and future limits.
+
+**Recommended security work, not yet implemented:** preserve locally verified time checks, the existing 11-block median and 540-second future limit as a compatibility baseline; fuzz adversarial timestamp sequences and reorg histories against both growing and full-window LWMA. Evaluate stricter monotonic timestamps and shorter future limits as explicit alternatives **only after** demonstrating miner-template compatibility, acceptable clock-skew behavior, and no new denial-of-service or chain-split risk. Existing normalization alone should not be described as proof against all manipulation.
+
+### Activation and reorganizations: intended invariants
+
+- New network identity and genesis must segregate the proposed mainnet from the current development chain, whose schedule (v17/18/19 at 500/600/700) remains untouched.
+- Consensus version activation must be **deterministic by ancestor height and network**, without an operator date or runtime toggle changing validation. Select the correct version from the first mineable block, including startup.
+- Expected difficulty must derive only from a candidate block's **own ancestor history**, not cached current-main-chain timestamps/work; use the same function for tip-extension, block-template construction, historical verification, and alternative-chain/reorganization verification.
+- Validate each branch from its common ancestor, compare accumulated valid proof-of-work (subject to existing chain-selection rules), reject invalid timestamps/PoW even if the branch advertises greater work, and test reorgs crossing the startup-to-LWMA handoff.
+- Avoid consensus dependence on network fetches, pool shares, floating-point arithmetic, machine time beyond explicit timestamp-validity bounds, or platform-dependent integer overflow.
+- Keep fresh-mainnet binaries isolated from the current live chain. No deployment, reset, or wallet migration until cross-platform consensus vectors, offline mining, sync-from-genesis, and reorg tests pass.
+
+### Remaining parameters to freeze before a mainnet release
+
+Verify source-of-truth constants and document the actual genesis block, network UUID, addresses, peer seeds, activation versions, reward/maturity and tail emission, block weight, transaction fee and timestamp rules, pool interfaces, checkpoints, hardfork voting thresholds, and recovery/migration behavior. This is a release checklist; it does not authorize changes to these parameters.
