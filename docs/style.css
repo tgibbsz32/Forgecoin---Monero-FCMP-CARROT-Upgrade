@@ -26,3 +26,8 @@
   height: 38px;
   object-fit: contain;
 }
+
+/* Official ForgeCoin transparent logo */
+.brand-logo{width:38px;height:38px;object-fit:contain;flex:none;filter:drop-shadow(0 0 6px #008fff55)}
+.coin{width:min(350px,88%);aspect-ratio:1;border:0;background:transparent;box-shadow:none;transform:none;display:grid;place-items:center}
+.coin-logo{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 32px #007dff59)}
