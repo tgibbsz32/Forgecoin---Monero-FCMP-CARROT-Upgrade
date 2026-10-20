@@ -21,7 +21,7 @@
      class="brand-logo"><span>FORGE<span class="accent">COIN</span></span></a>
   <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-links">☰</button>
   <nav id="nav-links" class="nav-links" aria-label="Main navigation">
-   <a href="#technology">Technology</a><a href="#mining">Mining</a><a href="#downloads">Downloads</a><a href="#network">Network</a><a href="#documentation">Docs</a>
+   <a href="#technology">Technology</a><a href="mining.html">Mining</a><a href="downloads.html">Downloads</a><a href="#network">Network</a><a href="#documentation">Docs</a>
    <a class="nav-github" href="https://github.com/tgibbsz32/forgecoin" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
   </nav>
  </div>
@@ -34,7 +34,7 @@
     <span class="eyebrow"><span class="dot"></span> OPEN SOURCE · EXPERIMENTAL MAINNET</span>
     <h1>Mine independently.<br><span class="gradient-text">Transact privately.</span></h1>
     <p class="lead">ForgeCoin (FRG) is a Monero-derived, privacy-preserving proof-of-work network built around CPU-accessible mining and self-operated infrastructure.</p>
-    <div class="actions"><a class="btn primary" href="#downloads">Explore downloads <span aria-hidden="true">↗</span></a><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin">View the source <span aria-hidden="true">→</span></a></div>
+    <div class="actions"><a class="btn primary" href="downloads.html">Explore downloads <span aria-hidden="true">↗</span></a><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin">View the source <span aria-hidden="true">→</span></a></div>
     <p class="caution"><strong>Bootstrap-stage software.</strong> The network has limited independent hash power, has not been independently audited, and is not recommended for substantial value.</p>
    </div>
    <div class="coin-scene" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="coin">
@@ -59,7 +59,7 @@
   </div>
  </div></section>
  <section class="section darker" id="mining"><div class="container split">
-  <div><span class="kicker">02 / MINING</span><h2>Participate in<br><span class="accent">proof of work.</span></h2><p class="muted">Run a ForgeCoin full node and use the project's solo-mining interfaces. You will need at least one existing peer address until independently operated seed infrastructure is available.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin#joining-the-network">Read peer setup guidance ↗</a></div>
+  <div><span class="kicker">02 / MINING</span><h2>Participate in<br><span class="accent">proof of work.</span></h2><p class="muted">Run a ForgeCoin full node and use the project's solo-mining interfaces. You will need at least one existing peer address until independently operated seed infrastructure is available.</p><a class="text-link" href="mining.html">Full mining guide ↗</a></div>
   <div class="steps card">
    <div><span class="step-number">01</span><div><h3>Review setup & risks</h3><p>Read build instructions, project status, and security notes before running software.</p></div></div>
    <div><span class="step-number">02</span><div><h3>Run a node</h3><p>Configure a known ForgeCoin peer and allow P2P traffic on TCP 19480.</p></div></div>
@@ -69,7 +69,7 @@
  <section class="section" id="downloads"><div class="container">
   <div class="section-heading"><span class="kicker">03 / SOFTWARE</span><h2>Run ForgeCoin on <span class="accent">your terms.</span></h2><p>Source code is available now. Use only official, verified release assets; this website does not claim binaries are available unless published.</p></div>
   <div class="card-grid two">
-   <article class="card download-card"><div class="card-top"><span class="mini-icon">▣</span><span class="tag">DESKTOP</span></div><h3>Wallet & node</h3><p>The current Tauri/Rust/React desktop source includes wallet, local node operation, and mining controls. Native sidecar binaries require separate builds.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin/releases">Check official releases ↗</a></article>
+   <article class="card download-card"><div class="card-top"><span class="mini-icon">▣</span><span class="tag">DESKTOP</span></div><h3>Wallet & node</h3><p>The current Tauri/Rust/React desktop source includes wallet, local node operation, and mining controls. Native sidecar binaries require separate builds.</p><a class="text-link" href="downloads.html">Downloads and release status ↗</a></article>
    <article class="card download-card"><div class="card-top"><span class="mini-icon">⌘</span><span class="tag">DEVELOPERS</span></div><h3>Source & build guide</h3><p>Inspect the implementation, review build prerequisites and compile a verified local build.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin/blob/main/BUILDING.md">Read build instructions ↗</a></article>
   </div>
   <p class="safety-note">Never download wallets from unsolicited links. Verify checksums for any published binary. Back up and protect recovery seeds. Do not expose wallet RPC or unrestricted daemon RPC to the internet.</p>
