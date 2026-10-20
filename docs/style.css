@@ -21,3 +21,8 @@
   object-fit: contain;
   filter: drop-shadow(0 0 35px rgba(61,224,208,0.35));
 }
+.brand-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
