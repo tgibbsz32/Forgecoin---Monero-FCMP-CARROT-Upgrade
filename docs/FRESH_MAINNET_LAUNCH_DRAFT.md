@@ -99,3 +99,23 @@ See Zawy's [LWMA specification](https://github.com/zawy12/difficulty-algorithms/
 ### Remaining parameters to freeze before a mainnet release
 
 Verify source-of-truth constants and document the actual genesis block, network UUID, addresses, peer seeds, activation versions, reward/maturity and tail emission, block weight, transaction fee and timestamp rules, pool interfaces, checkpoints, hardfork voting thresholds, and recovery/migration behavior. This is a release checklist; it does not authorize changes to these parameters.
+
+
+## Proposed startup retargeting and chain activation — review required
+
+**Choice to implement and verify:** Height 1 starts with difficulty 500,000. Hold 500,000 for the first **15 mineable blocks** (exact genesis/indexing boundaries must be confirmed). Afterward, compute integer LWMA with a growing interval window `N = min(90, available predecessor intervals)` until the network accumulates 90 intervals. Enforce the **400,000 minimum** on all heights. During bootstrap only, limit each retarget to [previous_difficulty/2, previous_difficulty*2], with defined integer rounding and overflow handling; use the established LWMA 90 calculation once full history exists. The 15-block cutoff, retarget clamp, and progressive-window formula are **provisional consensus proposals**, not deployed rules.
+
+**Preliminary startup simulation:** A 100-seed Python experiment comparing fixed 90-block warm-up with progressive retargeting estimated average block intervals over blocks 16–90:
+
+| Constant network rate | Fixed warm-up | Progressive warm-up |
+| --- | ---: | ---: |
+| 2,000 H/s | 250 s | 200 s |
+| 6,500 H/s | 77 s | 113 s |
+| 33,500 H/s | 15 s | 95 s |
+| 100,000 H/s | 5 s | 88 s |
+
+This study uses synthetic Poisson solve times and **honest timestamps**, so it does not establish security against timestamp attacks or prove deterministic agreement with compiled consensus code. Sources and CSV are held locally as `consensus-specs/startup_prototype.py` and `startup-prototype-results.csv`.
+
+**Timestamp threat model:** Retain the existing 11-block median-time check, 540-second future timestamp limit, timestamp normalization, and 720-second weighted solve-interval cap as candidate launch rules. Independently test backward timestamps, forward timestamp drift, alternating high/low timestamps, long stalls, invalid past/future timestamps, and chain-switch scenarios before freeze. Stronger monotonic timestamps should be assessed, not silently enabled. Background research: [Zawy's LWMA discussion](https://github.com/zawy12/difficulty-algorithms/issues/3), [Zawy's timestamp attacks](https://github.com/zawy12/difficulty-algorithms/issues/30), [BIP 94](https://github.com/bitcoin/bips/blob/master/bip-0094.mediawiki), [BIP 54](https://github.com/bitcoin/bips/blob/master/bip-0054.md). Bitcoin epoch-boundary patches cannot be copied directly to ForgeCoin's per-block LWMA.
+
+**Activation / reorganization design:** For an explicitly new genesis/network identity, select one protocol version and one deterministic height-based difficulty schedule from the first mineable block. Every validation path—mining templates, full-block acceptance, alternative chains, historical recalculation, and replay from genesis—must compute the next difficulty solely from the candidate branch's ancestors. Use accumulated validated chain work, not block count or local wall-clock timestamps, to determine preferred chain. Never allow an alternative branch to inherit active-chain LWMA history. Reorg and median-timestamp behavior need independent cross-platform test vectors. Existing development-chain heights 500/600/700 remain unchanged and must not be imported. **No source changes, reset, or live activation are authorized by this document.**
