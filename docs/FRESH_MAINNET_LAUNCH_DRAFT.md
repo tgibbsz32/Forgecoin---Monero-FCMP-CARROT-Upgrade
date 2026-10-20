@@ -44,3 +44,24 @@ These **are not** the proposed fresh-mainnet activation parameters. The fresh-ne
 ForgeCoin remains an **experimental development network** at the time of this draft, without an independent security audit. No public-mainnet reset or migration has been performed. The current explorer is [available over HTTPS](https://150.136.209.227/), but reflects the **existing development chain**, not a new launch.
 
 The proposed economics and difficulty settings do not guarantee security, stable mining profitability, or fair distribution; these require testing and transparent public participation.
+
+
+## Preliminary launch simulations — October 20, 2026
+
+A **Python reproduction of the current integer LWMA formula**, parameterized for 60, 90, or 120 intervals and a 400,000 floor, ran 624 seeded trials (13 scenarios × 3 windows × 16 random seeds) across **386,880 simulated blocks**. Each trial simulated 620 blocks with a possible hash-rate transition after 220 blocks. Startup used a provisional **fixed difficulty of 500,000 until N+1 history entries**, before LWMA. This is **not approved consensus bootstrap logic**.
+
+| Scenario, first 100 blocks after transition (seconds) | LWMA 60 | LWMA 90 | LWMA 120 |
+| --- | ---: | ---: | ---: |
+| One 6,500 H/s miner, steady | 119.52 | 118.58 | 117.38 |
+| Large miner joins, 6,500 → 33,500 H/s | 78.71 | 63.77 | 53.22 |
+| Large miner leaves, 33,500 → 6,500 H/s | 218.34 | 250.67 | 262.30 |
+| Pool exit removes 70%, 65,000 → 19,500 H/s | 179.97 | 198.35 | 201.65 |
+| Network at 2,000 H/s, last 200 blocks | 200.08 | 200.05 | 200.05 |
+
+The 400,000 floor imposes a minimum expected block interval of 200 seconds at 2,000 H/s (difficulty / hash rate), irrespective of window. LWMA 60 reacts faster to large departures; 120 is slower; **90 remains a practical compromise, not a proven optimum**. Results are means over seeded trials, not deterministic guarantees, and rare long block gaps occur.
+
+**Validation limits:** Python models the integer formula but does not link or execute the compiled ForgeCoin consensus implementation; it does not validate RandomX proofs, alternate chains, adversarial timestamps, propagation, or real pool payout behavior. The short warm-up period and sample indexing remain consensus design issues. Reproduce using the locally saved `simulate_fresh_mainnet.py` and CSV/JSON results in the project's `final-respository-and-builds/consensus-specs` folder. Do **not** treat these results as release authorization.
+
+## Future development: optional XMR/XTM merged-mining integration
+
+After ForgeCoin's own mainnet launch and stabilization, research an optional **Monero (XMR) + Tari (XTM)** merged-mining setup within ForgeCoin Desktop, including compatible external mining infrastructure, separate wallet support, secure key isolation, and pool integration. This roadmap item is *not* a plan to make ForgeCoin itself an auxiliary-POW chain, and it does **not** change ForgeCoin's existing consensus, block rewards, or launch scope.
