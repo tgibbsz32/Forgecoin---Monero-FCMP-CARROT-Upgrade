@@ -1,68 +1,28 @@
-- [ ] Security audit
-- [ ] Code audit
-- [ ] Ledger integration
-  - [ ] Implemented in Monero codebase (if needed)
-  - [ ] Ledger app integration coded by Ledger
-  - [ ] Ledger Monero app update available
-- [ ] Trezor integration
-  - [ ] Implemented in Monero codebase (if needed)
-  - [ ] Trezor app integration coded by Trezor
-  - [ ] Trezor firmware update available (if needed)
-- [ ] Fork height set
-  - [ ] Monero-announce mailer notice
-  - [ ] Twitter announcement
-  - [ ] Reddit announcement
-  - [ ] Getmonero.org announcement
-- [ ] Notify wallets
-  - [ ] MyMonero
-  - [ ] Coinomi
-  - [ ] Exa Wallet
-  - [ ] Wookey Wallet
-  - [ ] X Wallet
-  - [ ] Guarda
-  - [ ] ZelCore
-  - [ ] Cake Wallet
-  - [ ] Monerujo
-  - [ ] Edge Wallet
-  - [ ] Exodus
-  - [ ] XMRWallet
-- [ ] Notify exchanges
-  - [ ] https://web.getmonero.org/community/merchants/#exchanges
-- [ ] Notify 3rd party payment processors
-  - [ ] https://web.getmonero.org/community/merchants/#payment-gateways
-- [ ] Notify mining pools
-  - [ ] https://miningpoolstats.stream/monero
-- [ ] Release tagged
-  - [ ] Update src/version.cpp.in with new version AND new name (if necessary)
-  - [ ] Update Gitian YML files in contrib/gitian/ to the new version number
-  - [ ] Update README.md with new fork table entry (or at least update the Recommended Monero version)
-  - [ ] Update contrib/gitian/README.md so that the instructions reflect the current version
-  - [ ] Update src/checkpoints/checkpoints.cpp with a recent hardcoded checkpoint
-  - [ ] Update src/blocks/checkpoints.dat with ./monero-blockchain-export --output-file checkpoints.dat --block-stop <recent block height> --blocksdat
-  - [ ] Update expected_block_hashes_hash in src/cryptonote_core/blockchain.cpp with checkpoints.dat sha256 hash
-- [ ] Testnet forked
-- [ ] Testnet testing/verification
-  - [ ] Ledger
-  - [ ] Trezor
-  - [ ] Release-specific testing
-  - [ ] RPC testing/update RPC documentation
-- [ ] CLI reproducible builds validated
-- [ ] CLI released
-  - [ ] https://web.getmonero.org/downloads/ updated
-  - [ ] Update hashes.txt on website
-  - [ ] Update downloads.yml on website
-  - [ ] Update auto-update DNS records
-  - [ ] Update redirects on downloads box
-  - [ ] Update seed nodes
-- [ ] GUI released
-  - [ ] https://web.getmonero.org/downloads/ updated
-  - [ ] Update hashes.txt on website
-  - [ ] Update hashes.txt.sig on website
-  - [ ] Update downloads.yml on website
-  - [ ] Update auto-update DNS records
-  - [ ] Update redirects on downloads box
-- [ ] Release Announcements
-  - [ ] Monero-announce mailer notice
-  - [ ] Twitter announcement
-  - [ ] Reddit announcement
-  - [ ] Getmonero.org announcement
+# ForgeCoin public release checklist
+
+## Source publication
+- Publish only this repository directory, never the surrounding workspace.
+- Inspect staged files and the complete Git history for private data.
+- Verify author identity before every commit; the repository uses a project identity.
+- Keep third-party license notices and public test fixtures.
+- Enable a private security-reporting channel on the chosen hosting account.
+
+## Binary releases
+- Build native binaries from the exact source commit being released.
+- Vendored dependencies are included; configure CMake with `-DMANUAL_SUBMODULES=1`.
+- Validate the native build on each supported platform before claiming support.
+- Verify genesis, network UUID, v16 activation at height 1 and monetary constants.
+- Test daemon startup, two-node synchronization, wallet recovery and transfers.
+- Test mining start/stop, address creation, explorer and desktop resizing.
+- Check compiled binaries for personal build paths and debug information.
+- Do not change genesis or restore inherited Monero checkpoints or seed nodes.
+- If including XMRig, include its matching source and license.
+- Keep signing private keys outside the repository. Public signatures can identify
+  or correlate a release signer; choose the intended public identity deliberately.
+- Generate checksums after final packaging/signing; publish binaries as release assets.
+- Describe known limitations, bootstrap peer requirements and upgrade instructions.
+
+## Validation status
+This source export has not received a fresh full native rebuild or independent
+security audit. Earlier desktop tests used packaged Phase 3 native binaries.
+The testnet and stagenet identities are not ready for public use.

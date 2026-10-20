@@ -1,5 +1,9 @@
 # ForgeCoin Technical and Economic Whitepaper
 
+> Historical September specification. The recovered October source adds difficulty
+> upgrades at heights 500, 600 and 700 and a new desktop application.
+> See [SOURCE_RECOVERY.md](SOURCE_RECOVERY.md) for the current source schedule.
+
 Version 0.1 - September 2026
 
 ## Abstract
