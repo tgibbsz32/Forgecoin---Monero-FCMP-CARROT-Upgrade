@@ -71,3 +71,20 @@ Authenticated wallets can submit `POST /practice-elections/{id}/ballots` with `{
 **Outstanding limitations:** There is no approved administrator authentication, person-level uniqueness, proof of miner ownership, staked-token attestation, delegated stake handling, ballot anonymity, election scheduling, formal election tally rules, dispute handling, or multi-reviewer reconciliation. A single person who controls multiple verified wallets may have multiple ballots. SQLite administrators can alter the records. Do not deploy this feature publicly or represent its voting output as binding decisions. Browser-only GitHub Pages practice simulations remain separate.
 
 Test with `python -m unittest services.governance_api.test_app` after installing dependencies.
+
+## Local practice-election operations
+
+Use these commands from the repository root **only on a trusted development machine**:
+
+```bash
+python -m services.governance_api.election_admin list
+python -m services.governance_api.election_admin create community "Sample community proposal"
+python -m services.governance_api.election_admin close 1
+python -m services.governance_api.election_admin tally 1
+```
+
+For staking simulations, create a local JSON file mapping eligible registered Solana wallets to **demo integer weights** and add `--weights-json path/to/weights.json`. Never publish the mapping if it may reveal identities or sensitive user finances. The code does not validate live stake ownership.
+
+The operator can create a frozen eligibility snapshot, inspect turnout without seeing ballots, close a practice election, and tally aggregate votes **only after closure**. There are no public HTTP administrative routes. A local operator with machine/database access is currently fully trusted; this is **not** an authenticated, multi-reviewer admin dashboard. The existing `docs/practice-governance.html` is a static visual simulator and does not communicate with the API.
+
+**Do not use the aggregate results for binding monetary decisions.** The system lacks verified person-level identity, secure audit anchoring, anonymous ballots, independent election administration, election scheduling, eligibility appeals and anti-coercion protections.
