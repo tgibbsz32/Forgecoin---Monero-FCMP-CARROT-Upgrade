@@ -7,11 +7,11 @@ This service is **not deployed**, does not register real voters, and cannot acce
 Python 3.11+; install in a virtual environment:
 
 ```bash
-pip install -r services/governance-api/requirements.txt
+pip install -r services/governance_api/requirements.txt
 uvicorn services.governance_api.app:app --reload --host 127.0.0.1 --port 8765
 ```
 
-The Python import-friendly directory is `services/governance_api` (underscore), not a production service.
+The Python import-friendly directory is `services/governance_api` (underscore), not a production service. From the repository root, run tests with `python -m unittest services.governance_api.test_app`.
 
 ## API
 
