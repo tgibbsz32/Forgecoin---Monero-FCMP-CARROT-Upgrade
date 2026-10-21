@@ -9,7 +9,7 @@ from fastapi import FastAPI, Header, HTTPException
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 from pydantic import BaseModel, Field
-from services.governance_api import registry, applications
+from services.governance_api import registry, applications, elections
 
 app = FastAPI(title="ForgeCoin Governance Prototype", version="0.1.0")
 LOCK = RLock()
@@ -148,3 +148,24 @@ def create_application(request: EligibilityApplication, authorization: str | Non
 def my_applications(authorization: str | None = Header(default=None)):
     wallet=authenticate(authorization)
     return {"applications":applications.mine(wallet),"votes_enabled":False}
+
+class PracticeBallot(BaseModel):
+    choice: str = Field(pattern="^(yes|no|abstain)$")
+
+@app.get("/practice-elections/{election_id}")
+def practice_election(election_id: int):
+    try:
+        return elections.detail(election_id)
+    except ValueError as exc:
+        raise HTTPException(404,str(exc)) from exc
+
+@app.post("/practice-elections/{election_id}/ballots", status_code=201)
+def practice_vote(election_id: int, request: PracticeBallot,
+                  authorization: str | None = Header(default=None)):
+    wallet=authenticate(authorization)
+    try:
+        return elections.cast(election_id,wallet,request.choice)
+    except PermissionError as exc:
+        raise HTTPException(403,str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(409,str(exc)) from exc
