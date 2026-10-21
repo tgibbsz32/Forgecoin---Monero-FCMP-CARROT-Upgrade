@@ -9,7 +9,7 @@ from fastapi import FastAPI, Header, HTTPException
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 from pydantic import BaseModel, Field
-from services.governance_api import registry
+from services.governance_api import registry, applications
 
 app = FastAPI(title="ForgeCoin Governance Prototype", version="0.1.0")
 LOCK = RLock()
@@ -42,6 +42,11 @@ ELECTION_ROLES = {
 
 class WalletRequest(BaseModel):
     address: str = Field(min_length=32, max_length=44)
+
+class EligibilityApplication(BaseModel):
+    role: str = Field(min_length=4, max_length=32)
+    evidence_reference: str = Field(min_length=8, max_length=250)
+    statement: str = Field(min_length=10, max_length=500)
 
 class SignatureRequest(WalletRequest):
     nonce: str = Field(min_length=32, max_length=128)
@@ -129,3 +134,17 @@ def eligibility(election_id: str, authorization: str | None = Header(default=Non
         "ballot_enabled": False,
         "reason": "No binding election, snapshot or verified ballot registry is deployed",
     }
+
+@app.post("/applications",status_code=201)
+def create_application(request: EligibilityApplication, authorization: str | None = Header(default=None)):
+    wallet=authenticate(authorization)
+    try:
+        application_id=applications.submit(wallet,request.role,request.evidence_reference,request.statement)
+    except ValueError as exc:
+        raise HTTPException(400,str(exc)) from exc
+    return {"application_id":application_id,"status":"pending","votes_enabled":False}
+
+@app.get("/applications/mine")
+def my_applications(authorization: str | None = Header(default=None)):
+    wallet=authenticate(authorization)
+    return {"applications":applications.mine(wallet),"votes_enabled":False}
