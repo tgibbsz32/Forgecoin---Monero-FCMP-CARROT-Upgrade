@@ -6,7 +6,7 @@ import base58
 from fastapi.testclient import TestClient
 from nacl.signing import SigningKey
 from services.governance_api.app import app, challenges, sessions
-from services.governance_api import registry, applications
+from services.governance_api import registry, applications, elections
 
 class AuthTests(unittest.TestCase):
     def setUp(self):
@@ -100,6 +100,39 @@ class AuthTests(unittest.TestCase):
         payload['role']='staking'
         self.assertEqual(self.client.post('/applications',json=payload,headers=auth).status_code,400)
         self.assertEqual(self.client.post('/applications/1/approve',json={},headers=auth).status_code,404)
+
+    def test_practice_snapshot_and_duplicate_ballots(self):
+        login,_=self.login()
+        headers={'Authorization':'Bearer '+login.json()['access_token']}
+        with self.assertRaises(ValueError):
+            elections.create('staking','Trial staking vote')
+        eid=elections.create('miner','Trial miner election')
+        self.assertEqual(self.client.post(f'/practice-elections/{eid}/ballots',
+                         json={'choice':'yes'},headers=headers).status_code,403)
+        registry.decide(self.address,'miner','approve','reviewer','Checked mined block')
+        self.assertEqual(self.client.post(f'/practice-elections/{eid}/ballots',
+                         json={'choice':'yes'},headers=headers).status_code,403)
+        eid2=elections.create('miner','New miner election')
+        self.assertEqual(self.client.post(f'/practice-elections/{eid2}/ballots',
+                         json={'choice':'yes'},headers=headers).status_code,201)
+        self.assertEqual(self.client.post(f'/practice-elections/{eid2}/ballots',
+                         json={'choice':'no'},headers=headers).status_code,409)
+        self.assertEqual(elections.detail(eid2)['ballots_cast'],1)
+        self.assertFalse(elections.detail(eid2)['binding'])
+        elections.close(eid2)
+        self.assertEqual(self.client.post(f'/practice-elections/{eid2}/ballots',
+                         json={'choice':'no'},headers=headers).status_code,409)
+
+    def test_practice_rejects_anonymous_and_invalid_vote(self):
+        eid=elections.create('community','Test public election')
+        self.assertEqual(self.client.post(f'/practice-elections/{eid}/ballots',
+                         json={'choice':'yes'}).status_code,401)
+        login,_=self.login()
+        headers={'Authorization':'Bearer '+login.json()['access_token']}
+        self.assertEqual(self.client.post(f'/practice-elections/{eid}/ballots',
+                         json={'choice':'arbitrary'},headers=headers).status_code,422)
+        self.assertEqual(self.client.post('/practice-elections',json={'category':'miner'},
+                         headers=headers).status_code,404)
 
     def test_no_anonymous_access(self):
         self.assertEqual(self.client.get("/me").status_code, 401)
