@@ -37,3 +37,27 @@ The sample elections are:
 - `chamber`: seated delegate credential.
 
 A category credential may authorize access to an election **only after election-specific snapshots and anti-duplicate checks are introduced**. Endpoint results at this phase must not be used to cast or count ballots.
+
+## Member eligibility application workflow (experimental)
+
+Authenticated wallets may send `POST /applications` containing `role` (`miner`, `developer`, or `community`), `evidence_reference` (an opaque `ref:` reference or public HTTPS URL), and a short `statement`. The service records a **pending** application in SQLite and returns its ID; this grants **no** voting role. `GET /applications/mine` returns only the authenticated wallet's application IDs, roles, statuses and timestamps, and deliberately omits evidence and reviewer notes.
+
+No HTTP route can approve an application. Authorized local administrators can *experimentally* review a pending application from the repository root with:
+
+```bash
+python -m services.governance_api.review_applications approve 1 --reviewer independent-reviewer --reason "Independently checked mining evidence"
+python -m services.governance_api.review_applications reject 2 --reviewer independent-reviewer --reason "Inadequate documentary evidence"
+python -m services.governance_api.review_applications audit 1
+```
+
+Reviewer CLI access is **not itself authenticated or independently approved**; do not deploy it to an untrusted host. Reviewer identity is a text claim. Review approval creates an audited role decision, but does not enable election ballots. The system prevents the applicant wallet string from being used as its own reviewer identifier; this alone is **not robust reviewer identity verification**. A production service requires managed reviewers, multiple-approval rules, secure private evidence storage, tamper-evident logs, retention/deletion policy, appeals, spam prevention and stronger uniqueness checks.
+
+Only one pending application per wallet and constituency is accepted. Rejected/approved requests are retained in the audit database; follow-up resubmissions need a documented policy. **Do not upload passports, selfies, private keys, recovery phrases or sensitive identity documents to this API.** Prefer opaque evidence references that do not themselves reveal private evidence; references and statements are still stored in SQLite and must be treated as potentially sensitive.
+
+Staking eligibility must eventually be determined by verified Solana stake snapshots, and chamber membership by a separately authenticated elected-seat registry. Neither can be requested using this application endpoint.
+
+Run the local test suite from repository root:
+```bash
+python -m unittest services.governance_api.test_app
+```
+No public deployment or tests in CI have been verified as part of this change.
