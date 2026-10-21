@@ -134,6 +134,25 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(self.client.post('/practice-elections',json={'category':'miner'},
                          headers=headers).status_code,404)
 
+    def test_operator_aggregates_closed_only(self):
+        login,_=self.login()
+        auth={'Authorization':'Bearer '+login.json()['access_token']}
+        registry.decide(self.address,'community','approve','local-reviewer','Verified sample participation')
+        eid=elections.create('community','Practice community decision')
+        self.assertEqual(elections.detail(eid)['eligible_wallets'],1)
+        self.assertEqual(len(elections.list_elections()),1)
+        self.assertEqual(self.client.post(f'/practice-elections/{eid}/ballots',
+                                        json={'choice':'yes'},headers=auth).status_code,201)
+        with self.assertRaises(ValueError):
+            elections.tally(eid)
+        elections.close(eid)
+        report=elections.tally(eid)
+        self.assertEqual(report['results']['yes']['ballots'],1)
+        self.assertEqual(report['results']['yes']['weight'],1)
+        self.assertFalse(report['binding'])
+        self.assertEqual(self.client.post('/admin/practice-elections',
+                         json={'category':'community','title':'bad'},headers=auth).status_code,404)
+
     def test_no_anonymous_access(self):
         self.assertEqual(self.client.get("/me").status_code, 401)
         self.assertEqual(self.client.get("/elections/chamber/eligibility").status_code, 401)
