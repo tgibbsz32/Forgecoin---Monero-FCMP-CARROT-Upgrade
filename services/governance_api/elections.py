@@ -83,3 +83,28 @@ def close(election_id):
     with connect() as conn:
         result=conn.execute("UPDATE practice_elections SET status='closed' WHERE id=? AND status='open'",(election_id,))
         if result.rowcount!=1:raise ValueError("Election missing or already closed")
+
+def list_elections():
+    """Administrative overview. Never expose electorate identifiers in public views."""
+    with connect() as conn:
+        rows=conn.execute("SELECT id FROM practice_elections ORDER BY id DESC").fetchall()
+    return [{"id":eid,**detail(eid)} for (eid,) in rows]
+
+def tally(election_id):
+    """Only show choice totals after the election closes."""
+    with connect() as conn:
+        status=conn.execute("SELECT status FROM practice_elections WHERE id=?",(election_id,)).fetchone()
+        if not status:
+            raise ValueError("Unknown practice election")
+        if status[0]!="closed":
+            raise ValueError("Close the election before tallying votes")
+        rows=conn.execute("""
+            SELECT b.choice,COUNT(*),SUM(e.weight)
+            FROM practice_ballots b JOIN practice_electors e
+            ON e.election_id=b.election_id AND e.wallet=b.wallet
+            WHERE b.election_id=? GROUP BY b.choice
+        """,(election_id,)).fetchall()
+    results={x:{"ballots":0,"weight":0} for x in ("yes","no","abstain")}
+    for choice,count,weight in rows:
+        results[choice]={"ballots":count,"weight":weight}
+    return {"election_id":election_id,"results":results,"binding":False}
