@@ -1,5 +1,4 @@
 """ForgeCoin governance proof-of-concept API. Local testing only."""
-import base64
 import secrets
 import time
 from dataclasses import dataclass
@@ -10,6 +9,7 @@ from fastapi import FastAPI, Header, HTTPException
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 from pydantic import BaseModel, Field
+from services.governance_api import registry
 
 app = FastAPI(title="ForgeCoin Governance Prototype", version="0.1.0")
 LOCK = RLock()
@@ -32,7 +32,6 @@ class Session:
 
 challenges: dict[str, Challenge] = {}
 sessions: dict[str, Session] = {}
-verified_roles: dict[str, set[str]] = {}  # empty until independently verified
 ELECTION_ROLES = {
     "staking": "staking",
     "miner": "miner",
@@ -106,6 +105,7 @@ def verify(request: SignatureRequest):
     except (BadSignatureError, ValueError) as exc:
         raise HTTPException(401, "Invalid wallet signature") from exc
     token = secrets.token_urlsafe(32)
+    registry.register(request.address)
     with LOCK:
         sessions[token] = Session(request.address, time.time() + SESSION_TTL)
     return {"access_token": token, "token_type": "bearer", "expires_in_seconds": SESSION_TTL}
@@ -113,8 +113,7 @@ def verify(request: SignatureRequest):
 @app.get("/me")
 def me(authorization: str | None = Header(default=None)):
     address = authenticate(authorization)
-    with LOCK:
-        roles = sorted(verified_roles.get(address, set()))
+    roles = sorted(registry.roles_for(address))
     return {"address": address, "verified_roles": roles, "votes_enabled": False}
 
 @app.get("/elections/{election_id}/eligibility")
@@ -123,8 +122,7 @@ def eligibility(election_id: str, authorization: str | None = Header(default=Non
     if election_id not in ELECTION_ROLES:
         raise HTTPException(404, "Unknown election")
     required = ELECTION_ROLES[election_id]
-    with LOCK:
-        allowed_role = required in verified_roles.get(address, set())
+    allowed_role = required in registry.roles_for(address)
     return {
         "election": election_id,
         "role_qualified": allowed_role,
