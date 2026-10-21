@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08111d"><meta name="description" content="ForgeCoin community governance, proposals, elections, staking roadmap and transparency.">
+<title>Community & Governance | ForgeCoin</title><link rel="icon" href="images/forgecoin-logo.png"><link rel="stylesheet" href="style.css">
+<style>
+.portal-hero{padding:72px 0 42px;background:radial-gradient(circle at 75% 5%,#10496775,transparent 54%)}
+.portal-hero h1{font-size:clamp(38px,5vw,64px);max-width:850px}
+.portal-hero .lead{max-width:850px}
+.portal-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:36px 0}
+.portal-kpi{padding:22px;border:1px solid var(--border);border-radius:14px;background:#132332}
+.portal-kpi strong{display:block;font-size:26px;line-height:1.3;color:#f4fbff}
+.portal-kpi small{display:block;color:var(--muted);margin-top:6px}
+.portal-section{padding:48px 0;border-top:1px solid var(--border)}
+.portal-section h2{font-size:clamp(28px,3vw,39px)}
+.portal-card{display:flex;flex-direction:column}
+.portal-card .tag{align-self:flex-start;margin-bottom:18px}
+.portal-card .text-link{margin-top:auto;padding-top:20px;font-weight:700}
+.portal-intro{max-width:750px;color:var(--muted)}
+.portal-alert{background:#162536;border:1px solid #37506c;padding:17px 22px;border-radius:12px;font-size:14px;color:#c7d9ea}
+.portal-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px}
+.portal-flow div{padding:17px;border:1px solid var(--border);border-radius:12px;background:#112334}
+.portal-flow b{color:var(--cyan);display:block}
+.portal-flow span{font-size:13px;color:var(--muted)}
+.portal-split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.portal-table{width:100%;border-collapse:collapse;font-size:14px}
+.portal-table th,.portal-table td{padding:13px;text-align:left;border-bottom:1px solid #304456}
+.portal-table th{color:var(--cyan)}
+.portal-steps{padding-left:22px;color:var(--muted)}
+.portal-steps li{margin:9px 0}
+.portal-label{display:inline-block;border:1px solid #456880;color:#b9d6ed;border-radius:999px;padding:4px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:800}
+.portal-actions{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+.portal-actions a{font-weight:700}
+.portal-note{font-size:13px;color:#a4b9cb}
+@media(max-width:780px){.portal-kpis{grid-template-columns:repeat(2,1fr)}.portal-flow{grid-template-columns:repeat(2,1fr)}.portal-split{grid-template-columns:1fr}}
+@media(max-width:480px){.portal-kpis,.portal-flow{grid-template-columns:1fr}}
+</style></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="container nav-wrap">
+<a class="brand" href="index.html"><img class="brand-logo" src="images/forgecoin-logo.png" alt=""><span>FORGE<span class="accent">COIN</span></span></a>
+<button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">☰</button>
+<nav class="nav-links" id="nav-links" aria-label="Main navigation"><a href="index.html">Home</a><a href="mining.html">Mining</a><a href="downloads.html">Downloads</a><a href="#governance">Governance</a><a href="#staking">Staking</a><a href="https://github.com/tgibbsz32/forgecoin">GitHub ↗</a></nav></div></header>
+<main id="main">
+<section class="portal-hero"><div class="container"><span class="eyebrow"><span class="dot"></span> COMMUNITY PORTAL • EARLY PREVIEW</span>
+<h1>Forge the network.<br><span class="gradient-text">Shape its future.</span></h1>
+<p class="lead">Explore ForgeCoin's community plans, proposed governance chamber, future elections, wFRG staking design and transparency commitments. The discussion and finance systems are not yet deployed.</p>
+<div class="actions"><a class="btn primary" href="#governance">Explore governance →</a><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin/blob/main/governance-charter.md">Read full charter ↗</a></div>
+<div class="portal-alert"><strong>Development status:</strong> This page describes planned features and the proposed charter. No binding community elections, voting backend, forum instance, production wFRG mint, or staking vault is live through this page. Do not send funds or wallet seed phrases to anyone claiming otherwise.</div>
+<div class="portal-kpis">
+<div class="portal-kpi"><strong>10</strong><small>Proposed chamber seats</small></div><div class="portal-kpi"><strong>5 / 3 / 2</strong><small>Stakers / constituencies / founder</small></div>
+<div class="portal-kpi"><strong>25M</strong><small>Provisional wFRG supply ceiling</small></div><div class="portal-kpi"><strong>60</strong><small>Planned FRG dual-issuance start block</small></div></div></section>
+<section class="portal-section" id="spaces"><div class="container"><span class="kicker">01 / COMMUNITY</span><h2>Your place in ForgeCoin</h2>
+<p class="portal-intro">The full portal will combine public proposals, moderated discussion, governance elections, staking participation and on-chain transparency. These spaces are being planned; the links below lead to real project resources where available.</p>
+<div class="card-grid three">
+<article class="card portal-card"><span class="tag">PLANNED SERVICE</span><h3>Community forum</h3><p>Discourse-style topics for mining support, proposals, development, governance and general discussion. No hosted forum URL has been announced.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin/issues">Discuss development in GitHub Issues ↗</a></article>
+<article class="card portal-card"><span class="tag">DOCUMENTED</span><h3>Governance chamber</h3><p>Five stake-elected seats, a miner, a developer, a community representative and two founder seats. Ten equal chamber votes with enhanced approval for monetary changes.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin/blob/main/governance-charter.md">Read governance-charter.md ↗</a></article>
+<article class="card portal-card"><span class="tag">PREVIEW ONLY</span><h3>Staking & rewards</h3><p>Proposed Solana wFRG staking funded by 10% of eligible mining-linked wFRG issuance. No deposit address, live vault, APY or production stake transaction is available.</p><a class="text-link" href="#staking">Explore planned staking →</a></article>
+</div></div></section>
+<section class="portal-section darker" id="governance"><div class="container"><span class="kicker">02 / GOVERNANCE</span><h2>Ten seats. Equal chamber votes.</h2><p class="portal-intro">Stake determines eligibility and voting influence in elections for the five staking representatives; it does not multiply a representative's vote once seated. Constituencies choose their own delegates under separate eligibility criteria.</p>
+<div class="portal-split"><article class="card"><h3>Chamber structure</h3>
+<table class="portal-table"><thead><tr><th>Representation</th><th>Seats</th></tr></thead><tbody>
+<tr><td>Stake-elected wFRG representatives</td><td>5</td></tr><tr><td>Native FRG miners</td><td>1</td></tr><tr><td>Developers</td><td>1</td></tr><tr><td>Community / users</td><td>1</td></tr><tr><td>Founder-designated</td><td>2</td></tr><tr><th>Total</th><th>10</th></tr></tbody></table></article>
+<article class="card"><h3>How a proposal becomes policy</h3><ol class="portal-steps">
+<li>Public proposal and impact disclosures</li><li>Open discussion and eligibility review</li><li>Seven-day chamber vote</li><li>Stakeholder ratification where required</li><li>Enforced notice and timelock</li><li>Audited execution and published records</li></ol>
+<p class="portal-note">Draft thresholds: 8 of 10 council votes for protected monetary amendments, plus qualified staker ratification; minimum 90 days' monetary-policy notice.</p></article></div></div></section>
+<section class="portal-section" id="elections"><div class="container"><span class="kicker">03 / ELECTIONS</span><h2>Representative elections</h2><p class="portal-intro">The first readiness review is proposed for 90 days after a future public launch, with additional checks every 30 days. No election date is scheduled and registration is not open.</p>
+<div class="portal-flow"><div><b>01 — Register</b><span>Verify Solana wallet control and community eligibility</span></div>
+<div><b>02 — Qualify</b><span>Verify stake, mining work, development or community history</span></div>
+<div><b>03 — Vote</b><span>Participate through an independently verifiable ballot</span></div>
+<div><b>04 — Audit</b><span>Publish results, challenges and representative mandates</span></div></div>
+<p class="portal-note">Potential eligibility evidence: GitHub contributions, mining proofs, established community participation and optional LinkedIn/social history. A social account is not sufficient proof of unique identity.</p>
+<div class="portal-actions"><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin/blob/main/governance-charter.md#3-initial-representatives-and-first-elections">Election readiness criteria ↗</a></div></div></section>
+<section class="portal-section darker" id="staking"><div class="container"><span class="kicker">04 / wFRG STAKING</span><h2>Mining-funded staking. <span class="accent">No promised yield.</span></h2>
+<div class="portal-split"><article class="card"><span class="portal-label">Not operational</span><h3>Staking bank — design preview</h3><p>Eligible FRG rewards would authorize 0.5 wFRG per FRG beginning at native block 60. Ninety percent would go to mining recipients and ten percent to a staking-reward vault.</p>
+<table class="portal-table"><tbody><tr><td>Issuance ratio</td><td>0.5 : 1</td></tr><tr><td>Miner allocation</td><td>90%</td></tr><tr><td>Staking reserve</td><td>10%</td></tr><tr><td>Initial wFRG supply</td><td>0</td></tr><tr><td>Staking deposits</td><td>Disabled</td></tr></tbody></table></article>
+<article class="card"><h3>Safety before deposits</h3><p>Staking must eventually use an independently tested Solana program and user-signed transactions, with published program IDs, withdrawal rules, account permissions and audited rewards.</p>
+<p><strong>No working Connect Wallet or Stake button is presented here.</strong> This prevents an informational site from being mistaken for an operational financial service.</p><a class="text-link" href="https://github.com/tgibbsz32/forgecoin/blob/main/governance-charter.md#62-wfrg-issuance">Read issuance policy ↗</a></article></div></div></section>
+<section class="portal-section" id="transparency"><div class="container"><span class="kicker">05 / TRANSPARENCY</span><h2>Verified data, never invented metrics.</h2><p class="portal-intro">When connected services become available, this space will disclose mined issuance, wFRG minted and burned, unclaimed claims, governance participation, treasury distribution and actual liquidity.</p>
+<div class="card-grid three"><article class="card"><span class="tag">PLANNED</span><h3>Issuance ledger</h3><p>Native FRG block claims, wFRG authorized by height, miner allocations and outstanding liabilities.</p></article>
+<article class="card"><span class="tag">PLANNED</span><h3>Fee treasuries</h3><p>Proposed 1% transfer fee: 0.5% burn, 0.2% development, 0.2% liquidity and 0.1% founder compensation.</p></article>
+<article class="card"><span class="tag">PLANNED</span><h3>Public voting record</h3><p>Proposal texts, quorum checks, votes, recusal disclosures, timelocked changes and execution receipts.</p></article></div>
+<div class="portal-actions"><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin/blob/main/PROJECT_STATUS.md">Current project status ↗</a><a class="btn secondary" href="https://github.com/tgibbsz32/forgecoin">Source repository ↗</a></div></div></section>
+</main>
+<footer><div class="container footer-inner"><div><a class="brand" href="index.html"><img src="images/forgecoin-logo.png" class="brand-logo" alt=""><span>FORGE<span class="accent">COIN</span></span></a><p>Experimental software and draft governance. No public wFRG staking service or voting system has been deployed.</p></div><div class="footer-links"><a href="index.html">Home</a><a href="https://github.com/tgibbsz32/forgecoin/blob/main/governance-charter.md">Charter</a><a href="https://github.com/tgibbsz32/forgecoin/blob/main/SECURITY.md">Security</a></div></div></footer>
+<script>
+const t=document.getElementById('menu-toggle'),n=document.getElementById('nav-links');t.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));n.classList.toggle('open',!o)});n.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{n.classList.remove('open');t.setAttribute('aria-expanded','false')}))
+</script></body></html>
