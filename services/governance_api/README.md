@@ -61,3 +61,13 @@ Run the local test suite from repository root:
 python -m unittest services.governance_api.test_app
 ```
 No public deployment or tests in CI have been verified as part of this change.
+
+## Frozen practice elections (not binding)
+
+A local administrator can create a *practice* election by calling `elections.create(category,title,weights=...)` in a trusted local Python process. It snapshots the current approved wallets for the selected category into `practice_electors`; changes to roles **after** creation do not add voters retroactively. Staking-weight simulations require explicit per-wallet integer weights from the administrator; these numbers are **not** validated against Solana balances and cannot be used for legitimate financial governance.
+
+Authenticated wallets can submit `POST /practice-elections/{id}/ballots` with `{"choice":"yes"}`, `{"choice":"no"}`, or `{"choice":"abstain"}`. Every accepted submission is marked `binding: false`. SQLite's unique composite key on election ID and wallet rejects duplicate ballots atomically. `GET /practice-elections/{id}` returns nonsensitive counts and turnout weights; it does not identify voter preferences. The `elections.close(id)` operation is local-administrator-only.
+
+**Outstanding limitations:** There is no approved administrator authentication, person-level uniqueness, proof of miner ownership, staked-token attestation, delegated stake handling, ballot anonymity, election scheduling, formal election tally rules, dispute handling, or multi-reviewer reconciliation. A single person who controls multiple verified wallets may have multiple ballots. SQLite administrators can alter the records. Do not deploy this feature publicly or represent its voting output as binding decisions. Browser-only GitHub Pages practice simulations remain separate.
+
+Test with `python -m unittest services.governance_api.test_app` after installing dependencies.
