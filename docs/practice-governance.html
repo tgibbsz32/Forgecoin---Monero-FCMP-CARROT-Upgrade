@@ -50,14 +50,14 @@ const fields=['proposal-class','eligible','turnout','support'];fields.forEach(id
 document.getElementById('reset').addEventListener('click',()=>{document.querySelectorAll('[data-seat]').forEach(x=>x.value='abstain');document.getElementById('proposal-class').value='monetary';document.getElementById('eligible').value=100000;document.getElementById('turnout').value=20000;document.getElementById('support').value=15000;render()});
 function render(){
  const type=document.getElementById('proposal-class').value, votes=[...document.querySelectorAll('[data-seat]')].map(x=>x.value);
- const yes=votes.filter(x=>x==='yes').length,no=votes.filter(x=>x==='no').length,abstain=10-yes-no;
+ const effectiveVotes=votes.map((v,i)=>document.getElementById('proposal-class').value==='founder'&&i>=8?'abstain':v);const yes=effectiveVotes.filter(x=>x==='yes').length,no=effectiveVotes.filter(x=>x==='no').length,abstain=10-yes-no;
  ['yes','no','abstain'].forEach((k,i)=>document.getElementById(k).textContent=[yes,no,abstain][i]);
  const special=type==='founder',needed=type==='routine'?6:type==='treasury'?7:type==='monetary'?8:7;
  const nonfounderYes=votes.slice(0,8).filter(x=>x==='yes').length;
  document.querySelectorAll('[data-seat]').forEach((select,i)=>{select.disabled=special&&i>=8;if(special&&i>=8)select.value='abstain'});
- const effective=votes.map((v,i)=>special&&i>=8?'abstain':v), effectiveYes=effective.filter(x=>x==='yes').length, attendance=effective.filter(x=>x!=='abstain').length;
+ const effective=votes.map((v,i)=>special&&i>=8?'abstain':v), effectiveYes=effective.filter(x=>x==='yes').length, attendance=10;
  const council=attendance>=8&&(special?nonfounderYes>=7:effectiveYes>=needed);
- document.getElementById('council-result').textContent=(council?'Chamber threshold met. ':'Chamber threshold not met. ')+(special?'Founder seats recused; need at least 7 of 8 non-founder yes votes.':'Need '+needed+' yes votes.')+' Demonstration attendance: '+attendance+'/10; 8 required.';
+ document.getElementById('council-result').textContent=(council?'Chamber threshold met. ':'Chamber threshold not met. ')+(special?'Founder seats recused; need at least 7 of 8 non-founder yes votes.':'Need '+needed+' yes votes.')+' All 10 seats are assumed present in this simulation; abstention is not absence.';
  const n=id=>Number(document.getElementById(id).value),eligible=n('eligible'),turnout=n('turnout'),support=n('support');
  const valid=[eligible,turnout,support].every(Number.isFinite)&&eligible>0&&turnout>=0&&support>=0&&turnout<=eligible&&support<=turnout;
  const participation=valid?turnout/eligible:0,approval=valid&&turnout>0?support/turnout:0;
