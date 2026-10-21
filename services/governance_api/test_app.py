@@ -1,18 +1,28 @@
 """Minimal security checks for the local-only governance prototype."""
 import unittest
+import os
+import tempfile
 import base58
 from fastapi.testclient import TestClient
 from nacl.signing import SigningKey
-from services.governance_api.app import app, challenges, sessions, verified_roles
+from services.governance_api.app import app, challenges, sessions
+from services.governance_api import registry
 
 class AuthTests(unittest.TestCase):
     def setUp(self):
         challenges.clear()
         sessions.clear()
-        verified_roles.clear()
+        self.temp = tempfile.TemporaryDirectory()
+        self.old_db = os.environ.get('FORGECOIN_GOVERNANCE_DB')
+        os.environ['FORGECOIN_GOVERNANCE_DB'] = os.path.join(self.temp.name,'roles.sqlite3')
         self.client = TestClient(app)
         self.key = SigningKey.generate()
         self.address = base58.b58encode(self.key.verify_key.encode()).decode()
+
+    def tearDown(self):
+        if self.old_db is None: os.environ.pop('FORGECOIN_GOVERNANCE_DB',None)
+        else: os.environ['FORGECOIN_GOVERNANCE_DB']=self.old_db
+        self.temp.cleanup()
 
     def login(self):
         res = self.client.post("/auth/challenge", json={"address": self.address})
@@ -40,6 +50,22 @@ class AuthTests(unittest.TestCase):
         sig = base58.b58encode(wrong_key.sign(chal["message"].encode()).signature).decode()
         res = self.client.post("/auth/verify", json={"address": self.address, "nonce": chal["nonce"], "signature": sig})
         self.assertEqual(res.status_code, 401)
+
+    def test_persistent_decisions_revoke_and_audit(self):
+        login,_=self.login()
+        headers={'Authorization':'Bearer '+login.json()['access_token']}
+        registry.decide(self.address,'miner','approve','reviewer-a','verified sample mining contribution')
+        self.assertEqual(registry.roles_for(self.address),{'miner'})
+        self.assertTrue(self.client.get('/elections/miner/eligibility',headers=headers).json()['role_qualified'])
+        self.assertFalse(self.client.get('/elections/miner/eligibility',headers=headers).json()['ballot_enabled'])
+        registry.decide(self.address,'miner','revoke','reviewer-b','sample evidence invalidated')
+        self.assertFalse(self.client.get('/elections/miner/eligibility',headers=headers).json()['role_qualified'])
+        self.assertEqual(len(registry.history(self.address)),2)
+
+    def test_no_public_role_grant_endpoint(self):
+        login,_=self.login()
+        headers={'Authorization':'Bearer '+login.json()['access_token']}
+        self.assertEqual(self.client.post('/roles/grant',json={'role':'chamber'},headers=headers).status_code,404)
 
     def test_no_anonymous_access(self):
         self.assertEqual(self.client.get("/me").status_code, 401)
