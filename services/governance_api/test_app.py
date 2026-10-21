@@ -6,7 +6,7 @@ import base58
 from fastapi.testclient import TestClient
 from nacl.signing import SigningKey
 from services.governance_api.app import app, challenges, sessions
-from services.governance_api import registry
+from services.governance_api import registry, applications
 
 class AuthTests(unittest.TestCase):
     def setUp(self):
@@ -66,6 +66,40 @@ class AuthTests(unittest.TestCase):
         login,_=self.login()
         headers={'Authorization':'Bearer '+login.json()['access_token']}
         self.assertEqual(self.client.post('/roles/grant',json={'role':'chamber'},headers=headers).status_code,404)
+
+    def test_application_lifecycle_and_private_status(self):
+        login,_=self.login()
+        auth={'Authorization':'Bearer '+login.json()['access_token']}
+        payload={'role':'miner','evidence_reference':'ref:private-mining-proof-0001',
+                 'statement':'I have submitted mining evidence for eligibility review.'}
+        self.assertEqual(self.client.post('/applications',json=payload).status_code,401)
+        new=self.client.post('/applications',json=payload,headers=auth)
+        self.assertEqual(new.status_code,201)
+        app_id=new.json()['application_id']
+        self.assertFalse(new.json()['votes_enabled'])
+        self.assertEqual(self.client.post('/applications',json=payload,headers=auth).status_code,400)
+        mine=self.client.get('/applications/mine',headers=auth).json()['applications']
+        self.assertEqual(mine[0]['status'],'pending')
+        self.assertNotIn('evidence_reference',mine[0])
+        self.assertFalse(self.client.get('/elections/miner/eligibility',headers=auth).json()['role_qualified'])
+        with self.assertRaises(ValueError):
+            applications.review(app_id,'approve',self.address,'Self review prohibited')
+        applications.review(app_id,'approve','independent-reviewer','Evidence independently examined')
+        self.assertTrue(self.client.get('/elections/miner/eligibility',headers=auth).json()['role_qualified'])
+        self.assertFalse(self.client.get('/elections/miner/eligibility',headers=auth).json()['ballot_enabled'])
+        self.assertEqual(len(applications.audit(app_id)),2)
+        with self.assertRaises(ValueError):
+            applications.review(app_id,'reject','independent-reviewer','Cannot reject twice')
+
+    def test_application_role_restrictions(self):
+        login,_=self.login()
+        auth={'Authorization':'Bearer '+login.json()['access_token']}
+        payload={'role':'chamber','evidence_reference':'ref:fake-chamber-seat-001',
+                 'statement':'I should not be able to self-enroll as a chamber representative.'}
+        self.assertEqual(self.client.post('/applications',json=payload,headers=auth).status_code,400)
+        payload['role']='staking'
+        self.assertEqual(self.client.post('/applications',json=payload,headers=auth).status_code,400)
+        self.assertEqual(self.client.post('/applications/1/approve',json={},headers=auth).status_code,404)
 
     def test_no_anonymous_access(self):
         self.assertEqual(self.client.get("/me").status_code, 401)
