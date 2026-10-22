@@ -1,6 +1,6 @@
 # ForgeCoin Roadmap
 
-**Updated:** 2026-10-22  
+**Updated:** 2026-10-22
 **Active scope:** Native ForgeCoin (FRG) only; no Solana token issuance.
 
 ## Phase 1 — Independent native FRG network
