@@ -26,3 +26,7 @@ Study a securely redeemable **1:1 FRG-backed Solana token** if direct native mar
 
 ## Historical designs
 The earlier `ForgecoinDual-Mining-Tokenomics-Architecture.md` and v0.1 charter described speculative mining-linked wFRG issuance and staking. Those designs are **superseded**, not current instructions. Solana-focused prototype code may remain archived or labeled experimental, but must not be deployed or advertised as FRG V1 features.
+
+## Development research artifact
+
+See the [native FRG miner bond proposal and synthetic tests](research/governance_bonds/README.md). This isolated policy experiment verifies no real mining or lock proofs and grants no authority; production governance and native lock changes remain gated on independent review.
