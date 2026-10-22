@@ -1,3 +1,5 @@
+> **V1 scope:** Native FRG only. Solana wallet authentication and `staking` weights below are legacy, local practice fixtures, not authorized V1 assets or governance rights. Mining-linked wFRG issuance and Solana staking are deferred; the former chamber is withdrawn. Native miner governance bonds require a reviewed enforceable lock and independently verified mining; neither is implemented by this service. See [the current charter](../../governance-charter.md).
+
 # ForgeCoin governance API — development-only foundation
 
 This service is **not deployed**, does not register real voters, and cannot accept binding election ballots. It is intended to run locally or in an isolated test environment. GitHub Pages cannot enforce voter eligibility.
@@ -54,7 +56,7 @@ Reviewer CLI access is **not itself authenticated or independently approved**; d
 
 Only one pending application per wallet and constituency is accepted. Rejected/approved requests are retained in the audit database; follow-up resubmissions need a documented policy. **Do not upload passports, selfies, private keys, recovery phrases or sensitive identity documents to this API.** Prefer opaque evidence references that do not themselves reveal private evidence; references and statements are still stored in SQLite and must be treated as potentially sensitive.
 
-Staking eligibility must eventually be determined by verified Solana stake snapshots, and chamber membership by a separately authenticated elected-seat registry. Neither can be requested using this application endpoint.
+The legacy staking and chamber categories cannot be requested using this application endpoint. They do not define future eligibility: Solana staking is outside V1 and any replacement chamber requires a separately reviewed specification.
 
 Run the local test suite from repository root:
 ```bash

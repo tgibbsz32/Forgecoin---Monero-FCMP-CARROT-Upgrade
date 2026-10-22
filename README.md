@@ -9,6 +9,12 @@ ForgeCoin is an experimental, privacy-preserving, proof-of-work cryptocurrency d
 
 ForgeCoin is in the bootstrap stage. The chain is operational, but the network currently has limited independent hash power and has not received an independent security audit. Do not treat it as suitable for substantial value until multiple independent nodes and miners are operating and the release process has been reviewed.
 
+## Current asset scope (October 2026)
+
+**ForgeCoin V1 is native FRG only.** There is no authorized Solana wFRG mining reward, dual issuance, Token-2022 mint, wFRG staking, or bridge at launch. Historical dual-mining designs are superseded; Solana market interoperability remains a **future research option**, not a commitment. The governance draft proposes native **FRG governance bonds** combined with independently verified mining participation for miner representatives; the bonding mechanism is not implemented and has no effect on native proof of work.
+
+See [roadmap](ROADMAP.md) and [revised governance charter](governance-charter.md).
+
 ## Mission
 
 ForgeCoin aims to provide private, CPU-accessible peer-to-peer digital cash that people can validate, mine, and explore on their own computers without relying on a central custodian or hosted block-explorer website.
