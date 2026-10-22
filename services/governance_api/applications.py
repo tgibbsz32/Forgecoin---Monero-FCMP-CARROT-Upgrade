@@ -62,6 +62,7 @@ def review(app_id, action, reviewer, reason):
         raise ValueError("review requires approved action, reviewer and substantive reason")
     now=int(time.time())
     with connection() as conn:
+        conn.execute("BEGIN IMMEDIATE")
         row=conn.execute("SELECT wallet,role,status FROM applications WHERE id=?",(app_id,)).fetchone()
         if row is None or row[2]!="pending":
             raise ValueError("application missing or already decided")

@@ -88,3 +88,63 @@ For staking simulations, create a local JSON file mapping eligible registered So
 The operator can create a frozen eligibility snapshot, inspect turnout without seeing ballots, close a practice election, and tally aggregate votes **only after closure**. There are no public HTTP administrative routes. A local operator with machine/database access is currently fully trusted; this is **not** an authenticated, multi-reviewer admin dashboard. The existing `docs/practice-governance.html` is a static visual simulator and does not communicate with the API.
 
 **Do not use the aggregate results for binding monetary decisions.** The system lacks verified person-level identity, secure audit anchoring, anonymous ballots, independent election administration, election scheduling, eligibility appeals and anti-coercion protections.
+
+## Development-only administrator dashboard
+
+The dashboard is a **separate service**, never mounted in `app.py` and never
+served from `docs/` or GitHub Pages. The ordinary API still has no administrative
+HTTP routes. Do not reverse-proxy, tunnel, deploy, or bind this dashboard publicly.
+
+From the repository root, after installing the requirements, use PowerShell:
+
+```powershell
+$env:FORGECOIN_ENV = 'development'
+$env:FORGECOIN_ADMIN_ENABLED = '1'
+$env:FORGECOIN_ADMIN_TOKEN = python -c "import secrets; print(secrets.token_urlsafe(32))"
+$env:FORGECOIN_ADMIN_REVIEWER = 'local-reviewer-name'
+$env:FORGECOIN_GOVERNANCE_DB = 'governance-dev.sqlite3'
+python -m services.governance_api.admin
+```
+
+Open `http://127.0.0.1:8766` and enter the generated token. Retrieve it from the
+local shell with `$env:FORGECOIN_ADMIN_TOKEN`; do not share it, put it in a URL,
+or save it in source control. Use the same explicit development database path
+for the wallet API if running both. Stop the service and clear the token environment
+variable when finished. Restart with a new token to revoke the old credential.
+
+The launcher binds only to loopback and disables proxy-header trust. Startup
+requires the exact development opt-ins, a token of at least 43 ASCII characters,
+and a configured reviewer identifier. Generate a random token as above: length
+validation alone does not guarantee entropy. Every administrative API request
+requires the separate bearer credential; wallet login tokens confer no admin
+rights. Host and browser-origin checks reject cross-origin access and DNS rebinding.
+All responses are non-cacheable, framing is blocked, and a strict content security
+policy permits only local scripts/styles. The token is kept in browser memory;
+Lock & clear removes it and displayed review data. Reloading also requires login.
+Do not install untrusted browser extensions on this machine.
+
+The dashboard lists the oldest 100 pending applications, supports reasoned
+approval/rejection under the configured reviewer identity, and creates frozen
+practice elections for all five constituencies. Staking requires a JSON mapping
+of demo weights (at most 500 entries, integer values from zero to one trillion).
+Evidence and statements are rendered as plain text, without fetching external
+references. Turnout includes wallet and weight counts; aggregate yes/no/abstain
+tallies are available only after closure. No individual choices are exposed.
+
+Reviews and ballot writes now acquire SQLite write transactions before checking
+state, preventing concurrent double decisions and ballots slipping past closure.
+Election eligibility is read from the same transaction that creates the snapshot.
+
+This is still a single trusted local operator with a shared credential, not
+production administrator identity, reviewer quorum, anonymous voting, or a
+tamper-evident audit system. Application decisions retain the existing local
+audit history. Election operations retain election records but do not yet have
+an independent operator audit log. All results remain non-binding, and the
+public API's binding-vote restrictions are unchanged.
+
+Run the complete governance tests:
+
+```bash
+python -m unittest services.governance_api.test_app services.governance_api.test_admin
+node --check services/governance_api/admin_static/admin.js
+```
