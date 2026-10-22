@@ -41,9 +41,10 @@ def create(category,title,weights=None):
         raise ValueError("Staking simulation requires explicit externally supplied weights")
     now=int(time.time())
     with connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
         # Freeze qualifications at creation; later role changes do not silently alter this ballot.
         rows=conn.execute("""SELECT DISTINCT wallet FROM members ORDER BY wallet""").fetchall()
-        voters=[w for (w,) in rows if category in registry.roles_for(w)]
+        voters=[w for (w,) in rows if category in registry.roles_for(w, conn)]
         cur=conn.execute("INSERT INTO practice_elections(category,title,created_at) VALUES (?,?,?)",(category,title.strip(),now))
         eid=cur.lastrowid
         for wallet in voters:
@@ -58,6 +59,7 @@ def cast(election_id,wallet,choice):
     if choice not in ("yes","no","abstain"):
         raise ValueError("Invalid practice ballot choice")
     with connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
         election=conn.execute("SELECT status FROM practice_elections WHERE id=?",(election_id,)).fetchone()
         if not election or election[0]!="open":
             raise ValueError("Election missing or closed")

@@ -2,6 +2,7 @@
 import os
 import sqlite3
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
 ROLES = frozenset(("staking", "miner", "developer", "community", "chamber"))
@@ -25,15 +26,18 @@ CREATE INDEX IF NOT EXISTS role_history ON role_decisions(wallet, role, id);
 def db_path():
     return Path(os.environ.get("FORGECOIN_GOVERNANCE_DB", "governance-dev.sqlite3"))
 
-class ClosingConnection(sqlite3.Connection):
-    def __exit__(self, exc_type, exc_value, traceback):
+class Connection(sqlite3.Connection):
+    """Commit/rollback and release the file handle at the end of each operation."""
+
+    def __exit__(self, *args):
         try:
-            return super().__exit__(exc_type, exc_value, traceback)
+            return super().__exit__(*args)
         finally:
             self.close()
 
+
 def connect():
-    conn = sqlite3.connect(db_path(), timeout=10, factory=ClosingConnection)
+    conn = sqlite3.connect(db_path(), timeout=10, factory=Connection)
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA busy_timeout=10000")
     conn.executescript(SCHEMA)
@@ -43,9 +47,9 @@ def register(wallet: str):
     with connect() as conn:
         conn.execute("INSERT OR IGNORE INTO members(wallet, created_at) VALUES (?,?)", (wallet, int(time.time())))
 
-def roles_for(wallet: str):
+def roles_for(wallet: str, connection=None):
     """Current authorized categories are last audited decisions per category."""
-    with connect() as conn:
+    with nullcontext(connection) if connection is not None else connect() as conn:
         rows = conn.execute("""
             SELECT d.role, d.action
             FROM role_decisions d
