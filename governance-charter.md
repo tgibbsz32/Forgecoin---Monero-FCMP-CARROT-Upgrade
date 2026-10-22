@@ -109,3 +109,7 @@ See [ROADMAP.md](ROADMAP.md) for stage gates. Existing archived dual-mining mate
 - **v0.2 (2026-10-22):** Explicit FRG-only project scope. Withdrew wFRG dual mining, companion issuance, staking economics and wFRG-dependent governance. Moved any Solana representation to optional future research; introduced a proposed native FRG governance bond requirement for miner representatives; native consensus unchanged.
 
 **Change-control notice:** This document records a development planning decision. It does not prove that the native code changed, that a binding constitutional vote occurred, or that earlier prototype software has been removed.
+
+## Development research artifact
+
+See the [native FRG miner bond proposal and synthetic tests](research/governance_bonds/README.md). This isolated policy experiment verifies no real mining or lock proofs and grants no authority; production governance and native lock changes remain gated on independent review.
