@@ -104,6 +104,12 @@ network calls, addresses or transaction construction. All input attestations
 are invented fixture facts, **not verified evidence**. Reviewer identifiers do
 not establish real independence; a cohort supplied by a caller cannot establish
 global uniqueness. The model assumes a complete cohort and agreed chain context.
+Each synthetic mining claim names a nonempty set of work units. Overlapping sets
+hold both claimants even when their claim IDs differ; disjoint pool work can be
+reviewed separately. Missing or malformed work records invalidate the snapshot.
+Real work-unit identifiers and non-overlap proofs are not designed here: caller
+chosen labels cannot detect renamed, concealed or falsely attributed work. This
+conservative experiment also cannot adjudicate legitimate shared contributions.
 It does not implement a proof verifier, continuity monitor, appeal registry,
 election system or persistent state machine. Never adapt it directly into an
 authorization endpoint.

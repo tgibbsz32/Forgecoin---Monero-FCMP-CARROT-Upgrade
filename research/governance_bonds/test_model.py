@@ -14,6 +14,7 @@ class BondPolicyTests(unittest.TestCase):
             continuous_since=70, mining_valid_until=110, earliest_spend=210,
             term_end=200, amount_atomic=100,
             reviewers=frozenset({"reviewer-a", "reviewer-b"}),
+            work_units=frozenset({"share-a", "share-b"}),
             conflicts=frozenset(), mining_verified=True, lock_enforced=True,
             ownership_verified=True, unspent_verified=True,
             uniqueness_verified=True, continuity_verified=True)
@@ -97,6 +98,43 @@ class BondPolicyTests(unittest.TestCase):
 
     def test_extra_bond_does_not_buy_extra_authority(self):
         self.assertEqual(self.run_case(), self.run_case(replace(self.fixture, amount_atomic=10**12)))
+
+    def test_distinct_claims_cannot_double_count_pool_work(self):
+        other = replace(self.fixture, entity="pool-b", bond="output-b",
+                        mining_claim="different-claim",
+                        work_units=frozenset({"share-b", "share-c"}))
+        for cohort in ((self.fixture, other), (other, self.fixture)):
+            for item in cohort:
+                result = self.run_case(item, cohort=cohort, seated=True)
+                self.assertEqual(result.simulated_state, "suspended")
+                self.assertIn("overlapping_work", result.reasons)
+                self.assertFalse(result.binding_authority)
+
+    def test_disjoint_pool_work_can_reach_review(self):
+        other = replace(self.fixture, entity="miner-b", bond="output-b",
+                        mining_claim="work-b", work_units=frozenset({"share-c"}))
+        for item in (self.fixture, other):
+            self.assertEqual(self.run_case(item, cohort=(self.fixture, other)).simulated_state,
+                             "candidate_for_review")
+
+    def test_missing_or_malformed_peer_work_fails_closed(self):
+        for units in (frozenset(), frozenset({""}), frozenset({1}), ["share-c"], None):
+            other = replace(self.fixture, entity="miner-b", work_units=units)
+            result = self.run_case(cohort=(self.fixture, other), seated=True)
+            self.assertEqual(result.simulated_state, "suspended")
+            self.assertIn("invalid_work_units", result.reasons)
+        for cohort in (None, [self.fixture], (self.fixture, None)):
+            self.assertEqual(self.run_case(cohort=cohort).reasons, ("invalid_cohort",))
+
+    def test_outage_then_requalification_requires_new_continuity(self):
+        self.assertEqual(self.run_case(now=106, seated=True).simulated_state, "suspended")
+        resumed = replace(self.fixture, reviewed_at=106, continuous_since=106,
+                          mining_valid_until=150)
+        self.assertEqual(self.run_case(resumed, now=106, seated=True).simulated_state, "suspended")
+        reviewed = replace(resumed, reviewed_at=136)
+        result = self.run_case(reviewed, now=136, seated=True)
+        self.assertEqual(result.simulated_state, "candidate_for_review")
+        self.assertFalse(result.binding_authority)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ class Fixture:
     amount_atomic: int
     reviewers: frozenset[str]
     conflicts: frozenset[str]
+    work_units: frozenset[str] = frozenset()
     mining_verified: bool = False
     lock_enforced: bool = False
     ownership_verified: bool = False
@@ -66,7 +67,7 @@ heights or wall time. `seated` means an imaginary incumbent in the experiment.
     if type(now) is not int or now < 0 or type(seated) is not bool:
         raise ValueError("Invalid experiment context")
     reasons = []
-    if not network or not anchor:
+    if any(type(v) is not str or not v.strip() for v in (network, anchor)):
         reasons.append("missing_context")
     if any(type(v) is not str or not v for v in (
             fixture.entity, fixture.bond, fixture.mining_claim,
@@ -105,11 +106,21 @@ heights or wall time. `seated` means an imaginary incumbent in the experiment.
         reasons.append("invalid_reviewers")
     elif len(fixture.reviewers - fixture.conflicts - {fixture.entity}) < policy.reviewer_quorum:
         reasons.append("independent_quorum_missing")
+    # Validate the complete snapshot before comparing claims. A malformed peer
+    # record must not silently disappear from duplicate/overlap accounting.
+    if (type(cohort) is not tuple or any(type(item) is not Fixture for item in cohort)):
+        return Result("suspended" if seated else "ineligible", ("invalid_cohort",))
+    for item in (fixture, *cohort):
+        if (type(item.work_units) is not frozenset or not item.work_units or
+                any(type(unit) is not str or not unit.strip() for unit in item.work_units)):
+            return Result("suspended" if seated else "ineligible", ("invalid_work_units",))
     if fixture not in cohort:
         reasons.append("missing_cohort_record")
     for field in ("entity", "bond", "mining_claim"):
         if sum(getattr(item, field) == getattr(fixture, field) for item in cohort) != 1:
             reasons.append("duplicate_" + field)
+    if any(item != fixture and item.work_units & fixture.work_units for item in cohort):
+        reasons.append("overlapping_work")
     if reasons:
         return Result("suspended" if seated else "ineligible", tuple(reasons))
     if now - fixture.continuous_since < policy.qualification_ticks:
