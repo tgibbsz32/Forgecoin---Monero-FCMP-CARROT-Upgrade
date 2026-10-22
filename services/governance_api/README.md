@@ -120,7 +120,10 @@ requires the separate bearer credential; wallet login tokens confer no admin
 rights. Host and browser-origin checks reject cross-origin access and DNS rebinding.
 All responses are non-cacheable, framing is blocked, and a strict content security
 policy permits only local scripts/styles. The token is kept in browser memory;
-Lock & clear removes it and displayed review data. Reloading also requires login.
+Lock & clear removes it, displayed review data, and draft election inputs (including
+staking weights). It cancels outstanding requests and ignores late responses from
+previous sessions. Cancellation cannot undo an operation already accepted by the
+server; sign in and refresh to check its outcome. Reloading also requires login.
 Do not install untrusted browser extensions on this machine.
 
 The dashboard lists the oldest 100 pending applications, supports reasoned
@@ -147,4 +150,5 @@ Run the complete governance tests:
 ```bash
 python -m unittest services.governance_api.test_app services.governance_api.test_admin
 node --check services/governance_api/admin_static/admin.js
+node --test services/governance_api/test_admin_ui.cjs
 ```

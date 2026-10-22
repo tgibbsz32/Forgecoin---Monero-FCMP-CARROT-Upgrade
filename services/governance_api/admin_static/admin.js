@@ -1,16 +1,44 @@
 "use strict";
 let token = "";
 let generation = 0;
+const pendingRequests = new Set();
 const $ = id => document.getElementById(id);
 function node(tag, text) { const n = document.createElement(tag); n.textContent = text; return n; }
-function lock() { generation++; token = ""; $("token").value = ""; $("workspace").hidden = true; $("applications").replaceChildren(); $("elections").replaceChildren(); $("identity").textContent = ""; $("message").textContent = "Locked. Local credentials and review data cleared."; }
-async function api(path, body) {
-  const response = await fetch("/api/" + path, {method: body === undefined ? "GET" : "POST", credentials: "omit", cache: "no-store", headers: {Authorization: "Bearer " + token, "Content-Type": "application/json"}, body: body === undefined ? undefined : JSON.stringify(body)});
-  const data = await response.json();
-  if (!response.ok) { if (response.status === 401) lock(); throw new Error(typeof data.detail === "string" ? data.detail : "Check the form values and try again."); }
-  return data;
+function lock() {
+  generation++;
+  token = "";
+  for (const controller of pendingRequests) controller.abort();
+  pendingRequests.clear();
+  $("token").value = "";
+  $("create").reset();
+  $("workspace").hidden = true;
+  $("applications").replaceChildren();
+  $("elections").replaceChildren();
+  $("identity").textContent = "";
+  $("message").textContent = "Locked. Local credentials and review data cleared.";
 }
-async function action(button, fn) { button.disabled = true; try { await fn(); } catch (error) { $("message").textContent = error.message; } finally { button.disabled = false; } }
+async function api(path, body) {
+  const version = generation;
+  const controller = new AbortController();
+  pendingRequests.add(controller);
+  try {
+    const response = await fetch("/api/" + path, {method: body === undefined ? "GET" : "POST", credentials: "omit", cache: "no-store", signal: controller.signal, headers: {Authorization: "Bearer " + token, "Content-Type": "application/json"}, body: body === undefined ? undefined : JSON.stringify(body)});
+    const data = await response.json();
+    // A response already in transit may finish even after cancellation.
+    if (version !== generation) throw new DOMException("Session changed", "AbortError");
+    if (!response.ok) { if (response.status === 401) lock(); throw new Error(typeof data.detail === "string" ? data.detail : "Check the form values and try again."); }
+    return data;
+  } finally {
+    pendingRequests.delete(controller);
+  }
+}
+async function action(button, fn) {
+  const version = generation;
+  button.disabled = true;
+  try { await fn(); }
+  catch (error) { if (version === generation && error.name !== "AbortError") $("message").textContent = error.message; }
+  finally { button.disabled = false; }
+}
 async function refresh() {
   const version = generation;
   const [reviews, overview] = await Promise.all([api("applications"), api("elections")]);
@@ -45,7 +73,7 @@ async function refresh() {
   if (!overview.elections.length) $("elections").append(node("p", "No practice elections yet."));
   $("workspace").hidden = false; $("message").textContent = "Local data refreshed. All elections remain non-binding.";
 }
-$("login").onsubmit = event => { event.preventDefault(); generation++; token = $("token").value; $("token").value = ""; action(event.submitter, refresh); };
+$("login").onsubmit = event => { event.preventDefault(); const enteredToken = $("token").value; lock(); token = enteredToken; action(event.submitter, refresh); };
 $("lock").onclick = lock;
 $("refresh").onclick = event => action(event.target, refresh);
 $("create").onsubmit = event => { event.preventDefault(); action(event.submitter, async () => {
