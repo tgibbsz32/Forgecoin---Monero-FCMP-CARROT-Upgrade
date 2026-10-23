@@ -1,4 +1,4 @@
-# Isolated native fresh-mainnet mining recheck — 2026-10-23
+# Isolated native fresh-mainnet mining recheck â€” 2026-10-23
 
 Read-only production scope; newly cloned local LMDB for test mining, no Oracle/live dev chain access.
 
@@ -14,7 +14,7 @@ Read-only production scope; newly cloned local LMDB for test mining, no Oracle/l
 **Important limitations:** Bounded mining did **not** reach consensus height 16; no startup-to-progressive-LWMA acceptance was tested. No actual fork competition or ARM64 cross-check occurred. The test regenerated no production chain data and did not change source or consensus parameters. Genesis spendability is still unverified.
 
 Test script and log copy retained in local archived workspace's `isolated-height16-recheck-20261023` directory. Do not mistake this report for a mainnet release approval.
-## Continued bounded mining � 2026-10-23
+## Continued bounded mining — 2026-10-23
 
 A second local offline run resumed the preserved disposable candidate chain from **RPC height 10** using the existing archived Windows candidate daemon and six CPU mining threads. It used `127.0.0.1:39581` RPC, loopback P2P port `39580`, `--offline`, `--no-zmq`, and no fixed-difficulty override.
 
@@ -24,4 +24,3 @@ A second local offline run resumed the preserved disposable candidate chain from
 - Final: height **11**, exit **0**, daemon stopped via script's `finally` block.
 
 **Not passed:** chain height 16 transition, full-window LWMA, genuine divergent-branch reorg, ARM64 agreement. No production/network changes; local isolated database retained as checkpoint.
-
