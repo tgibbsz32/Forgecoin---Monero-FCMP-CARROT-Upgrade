@@ -19,7 +19,7 @@ ForgeCoin is in the bootstrap stage. The chain is operational, but the network c
 
 **ForgeCoin V1 is native FRG only.** There is no authorized Solana wFRG mining reward, dual issuance, Token-2022 mint, wFRG staking, or bridge at launch. Historical dual-mining designs are superseded; Solana market interoperability remains a **future research option**, not a commitment. The governance draft proposes native **FRG governance bonds** combined with independently verified mining participation for miner representatives; the bonding mechanism is not implemented and has no effect on native proof of work.
 
-See [roadmap](ROADMAP.md) and [revised governance charter](governance-charter.md).
+See [roadmap](ROADMAP.md), [zero-cost pool research](docs/ZERO_COST_MINING_POOL_RESEARCH.md), and [revised governance charter](governance-charter.md).
 
 ## Mission
 
