@@ -1,5 +1,8 @@
 > **SUPERSEDED HISTORICAL CONCEPT (2026-10-22):** Dual mining, wFRG Solana issuance, staking, mint/fee settings and activation heights below are **not part of current ForgeCoin development or V1 launch**. This document is retained solely for research history. See [ROADMAP.md](ROADMAP.md) and [governance-charter.md](governance-charter.md). Do not deploy or advertise this architecture.
 
+> **Documentation status (2026-10-24):** HISTORICAL ARCHIVE ONLY: the Solana/wFRG dual-mining, automatic mint/fee and staking figures below are superseded concepts, not native FRG launch commitments or deployed features.
+
+
 # **Forgecoin (FRG) Dual-Mining & Tokenomics Architecture**
 
 # **Executive Summary**

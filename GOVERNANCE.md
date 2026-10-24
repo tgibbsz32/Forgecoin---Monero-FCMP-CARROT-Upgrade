@@ -1,5 +1,8 @@
 # ForgeCoin Governance
 
+> **Documentation status (2026-10-24):** This file describes consensus-change stewardship only. The provisional FRG governance charter is not ratified; native miner governance bonds, representative seats, quorum and binding elections are not implemented. Practice governance votes grant no authority. See governance-charter.md and docs/RELEASE_STATUS_2026-10-24.md.
+
+
 ForgeCoin consensus is enforced by software run independently by node operators. Repository maintainers can propose and publish changes but cannot remotely force independent nodes to accept them.
 
 ## Ordinary changes

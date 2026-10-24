@@ -1,5 +1,8 @@
 # ForgeCoin Technical and Economic Whitepaper
 
+> **Documentation status (2026-10-24):** This September technical/economic description is not a final release specification. The public development-chain source and the isolated fresh-mainnet candidate use different network identities and difficulty schedules. The 11.92092895 FRG genesis output is indexed in the tested candidate, and permanent unspendability has not been established. See RELEASE_STATUS_2026-10-24.md.
+
+
 > Historical September specification. The recovered October source adds difficulty
 > upgrades at heights 500, 600 and 700 and a new desktop application.
 > See [SOURCE_RECOVERY.md](SOURCE_RECOVERY.md) for the current source schedule.

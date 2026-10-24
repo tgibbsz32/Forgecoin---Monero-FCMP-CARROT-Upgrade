@@ -1,5 +1,8 @@
 # ForgeCoin
 
+> **Documentation status (2026-10-24):** The repository currently describes the public development-chain source. A separately identified fresh-mainnet candidate passed offline mining through RPC height 17 and a competing-chain reorganization repeat, but has NOT been approved or deployed. See docs/RELEASE_STATUS_2026-10-24.md.
+
+
 > Source restored October 20, 2026, including the existing October 0.1.6 work.
 > See [source provenance and validation limits](docs/SOURCE_RECOVERY.md).
 > The current desktop is [Tauri/Rust/React](apps/desktop-tauri); the Phase 3

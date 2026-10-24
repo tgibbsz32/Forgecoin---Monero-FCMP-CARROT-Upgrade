@@ -1,5 +1,8 @@
 # ForgeCoin Governance Charter
-**Version:** 0.2 — Provisional / Pre-Mainnet Draft
+
+> **Documentation status (2026-10-24):** Status clarification: this charter is a proposal, not binding governance. Mining-based FRG bond verification is not implemented; no seat allocation or quorum is ratified. The isolated candidate genesis output remains unproved permanently unspendable. See docs/RELEASE_STATUS_2026-10-24.md.
+
+**Version:** 0.2 â€” Provisional / Pre-Mainnet Draft
 **Status:** FRG-only working proposal; not ratified or enforced as binding governance
 **Project:** ForgeCoin (FRG), an independent proof-of-work network
 **Last updated:** 2026-10-22
