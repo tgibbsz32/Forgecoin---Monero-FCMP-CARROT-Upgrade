@@ -30,7 +30,7 @@ ForgeCoin aims to provide private, CPU-accessible peer-to-peer digital cash that
 | Atomic precision | 8 decimal places |
 | Proof of work | RandomX |
 | Target block time | 120 seconds |
-| Difficulty window | Legacy calculation before height 700; 90-interval LWMA from height 700 |
+| Difficulty window | Public development-source schedule: legacy before height 700, LWMA90 from 700; separate fresh candidate proposes LWMA from height 16 (unreleased) |
 | Primary emission reference | 50,000,000 FRG |
 | Initial post-genesis reward | approximately 23.84185222 FRG |
 | Tail reward | 0.20 FRG per block |

@@ -52,7 +52,7 @@ Changing the genesis transaction or network UUID would create a different networ
 
 ForgeCoin uses RandomX proof of work. RandomX is designed to favor general-purpose CPUs and reduce the advantage of specialized mining hardware. It does not guarantee equal participation: large CPU farms, botnets, cloud resources, or a dominant pool can still acquire substantial hash power.
 
-The target interval is 120 seconds. Difficulty is recalculated from recent block timestamps and cumulative work using a configured 720-block window. Users do not manually set the current network difficulty. Changing the target interval, window, or difficulty algorithm is a consensus change and requires a coordinated network upgrade.
+The target interval is 120 seconds. The historical legacy difficulty calculation uses a 720-block lookback, while the recovered public development-chain source schedules newer difficulty rules at heights 500, 600 and 700, including 90-interval LWMA at height 700. The isolated fresh-mainnet candidate proposes a different startup schedule at height 16 with a 400,000 floor; that candidate has not been adopted by the public development chain. Users do not manually set the current network difficulty. Changing the target interval, window, or difficulty algorithm is a consensus change and requires a coordinated network upgrade.
 
 ## Tokenomics
 
@@ -74,7 +74,7 @@ Block-weight penalties can reduce a miner's base reward when a block exceeds the
 | Coinbase maturity | 60 blocks, approximately 2 hours |
 | Default ordinary output spendable age | 10 blocks, approximately 20 minutes |
 
-The source code cannot establish who, if anyone, controls the private key corresponding to the genesis output. The project should publicly document whether that output is spendable and its intended treatment before seeking exchange listing or material outside investment.
+The indexed genesis output in the tested candidate has unlock time 60. It has not been proved permanently unspendable; identifying an unlock time or maturity condition does not establish that any party knows its private spend key. The source code alone cannot establish who, if anyone, controls that key. The project should publicly document whether that output is spendable and its intended treatment before seeking exchange listing or material outside investment.
 
 The primary emission approaches its reference gradually rather than using periodic halvings. The estimates below assume uninterrupted 120-second blocks, no reward penalties, and the currently programmed rules.
 
@@ -100,7 +100,7 @@ Privacy is not anonymity against every adversary. Wallet compromise, address reu
 
 ## Local blockchain explorer
 
-The ForgeCoin desktop application includes an explorer that reads from the daemon on `127.0.0.1`. Each full-node user can inspect recent blocks and look up a block height, block hash, or transaction identifier without depending on a project website. Synchronized nodes should converge on the same valid chain. During a temporary network split, each explorer displays the chain currently accepted by its own node.
+The historical Windows Forms desktop included a local explorer reading from the daemon at `127.0.0.1`. The current Tauri desktop does not embed an explorer; a separate read-only explorer is maintained under `apps/explorer`. Each full-node user can inspect recent blocks and look up a block height, block hash, or transaction identifier without depending on a project website. Synchronized nodes should converge on the same valid chain. During a temporary network split, each explorer displays the chain currently accepted by its own node.
 
 ## Network security
 
