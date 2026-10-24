@@ -1,5 +1,16 @@
 # ForgeCoin
 
+> **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](ROADMAP.md).
+
+
+![ForgeCoin mark](docs/images/forgecoin-logo.png)
+
+> **Owner policy update (2026-10-24):** Owner policy: no automatic balance migration from the existing development chain; fresh-mainnet identity and difficulty parameters remain provisional. Native PoW miners receive 100% of block subsidy, no founder/team/ICO premine is authorized, and 0.20 FRG per-block tail emission is retained subject to source audit. Genesis output must be independently proven permanently unspendable before release. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
+> **Documentation status (2026-10-24):** The repository currently describes the public development-chain source. A separately identified fresh-mainnet candidate passed offline mining through RPC height 17 and a competing-chain reorganization repeat, but has NOT been approved or deployed. See docs/RELEASE_STATUS_2026-10-24.md.
+
+
 > Source restored October 20, 2026, including the existing October 0.1.6 work.
 > See [source provenance and validation limits](docs/SOURCE_RECOVERY.md).
 > The current desktop is [Tauri/Rust/React](apps/desktop-tauri); the Phase 3
@@ -13,7 +24,7 @@ ForgeCoin is in the bootstrap stage. The chain is operational, but the network c
 
 **ForgeCoin V1 is native FRG only.** There is no authorized Solana wFRG mining reward, dual issuance, Token-2022 mint, wFRG staking, or bridge at launch. Historical dual-mining designs are superseded; Solana market interoperability remains a **future research option**, not a commitment. The governance draft proposes native **FRG governance bonds** combined with independently verified mining participation for miner representatives; the bonding mechanism is not implemented and has no effect on native proof of work.
 
-See [roadmap](ROADMAP.md) and [revised governance charter](governance-charter.md).
+See [roadmap](ROADMAP.md), [zero-cost pool research](docs/ZERO_COST_MINING_POOL_RESEARCH.md), and [revised governance charter](governance-charter.md).
 
 ## Mission
 
@@ -27,7 +38,7 @@ ForgeCoin aims to provide private, CPU-accessible peer-to-peer digital cash that
 | Atomic precision | 8 decimal places |
 | Proof of work | RandomX |
 | Target block time | 120 seconds |
-| Difficulty window | Legacy calculation before height 700; 90-interval LWMA from height 700 |
+| Difficulty window | Public development-source schedule: legacy before height 700, LWMA90 from 700; separate fresh candidate proposes LWMA from height 16 (unreleased) |
 | Primary emission reference | 50,000,000 FRG |
 | Initial post-genesis reward | approximately 23.84185222 FRG |
 | Tail reward | 0.20 FRG per block |
@@ -89,3 +100,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing changes. Report securit
 ## License and attribution
 
 ForgeCoin is distributed under the BSD 3-Clause license in [LICENSE](LICENSE). It is derived from Monero and CryptoNote code. See [NOTICE.md](NOTICE.md) for attribution and bundled-component notes.
+
+## Planned pool and explorer delivery
+
+The official native FRG pool (1% operator fee), Tauri official-pool integration alongside solo/custom-pool mining, pool website/dashboard, standalone Pool Observer and completed online blockchain explorer are tracked in the [implementation plan](docs/POOL_EXPLORER_IMPLEMENTATION_PLAN.md) and [roadmap](ROADMAP.md). Existing desktop controls, the offline pool-accounting model and recovered explorer source do not prove these public services are live. Tests, security review, private staging, controlled beta and operational rollout remain release gates.

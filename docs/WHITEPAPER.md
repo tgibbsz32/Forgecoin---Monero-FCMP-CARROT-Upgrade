@@ -1,5 +1,14 @@
 # ForgeCoin Technical and Economic Whitepaper
 
+> **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](../ROADMAP.md).
+
+
+> **Owner policy update (2026-10-24):** Owner policy confirmation: intended native emission retains the 50,000,000 FRG primary-emission reference (NOT a hard cap), perpetual 0.20 FRG/block tail and 100% subsidy to PoW miners, with no ICO/founder/team premine; exact release rules still require audit. The candidate genesis output may be retained ONLY if independently proven permanently unspendable. The development chain and fresh mainnet are separate, with NO automatic balance migration. See OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
+> **Documentation status (2026-10-24):** This September technical/economic description is not a final release specification. The public development-chain source and the isolated fresh-mainnet candidate use different network identities and difficulty schedules. The 11.92092895 FRG genesis output is indexed in the tested candidate, and permanent unspendability has not been established. See RELEASE_STATUS_2026-10-24.md.
+
+
 > Historical September specification. The recovered October source adds difficulty
 > upgrades at heights 500, 600 and 700 and a new desktop application.
 > See [SOURCE_RECOVERY.md](SOURCE_RECOVERY.md) for the current source schedule.
@@ -25,31 +34,37 @@ The project follows four operating principles:
 
 ## Architecture
 
-ForgeCoin uses a CryptoNote-derived transaction model and Monero's version 16 consensus feature set from block height 1. The inherited technology includes RingCT confidential amounts, CLSAG signatures, Bulletproofs+, view tags, stealth addressing, and a fixed ring size of 16 under version 16 rules.
+ForgeCoin uses a CryptoNote-derived transaction model. The isolated fresh-mainnet candidate has a genesis block at protocol v1 and activates protocol v19 at height 1; this is not a public release or activation. The inherited technology includes RingCT confidential amounts, CLSAG signatures, Bulletproofs+, view tags, stealth addressing, and a fixed ring size of 16 under version 16 rules.
 
 Full nodes verify every accepted block and transaction. Miners select valid transactions, perform RandomX proof of work, and extend the chain with the greatest cumulative difficulty. A miner with majority hash power can reorganize recent blocks or censor transactions, but it cannot create rewards or transactions that violate the rules enforced by honest full nodes.
 
 ## Network identity
 
-| Item | Mainnet value |
+| Item | Isolated fresh-mainnet candidate (provisional) |
 | --- | --- |
 | Network name | ForgeCoin |
 | Currency symbol | FRG |
-| Address prefixes | 90 standard, 91 integrated, 92 subaddress |
-| P2P port | 19480 TCP |
-| RPC port | 19481 TCP |
-| Network UUID | `388dca1c-ba93-41d9-9641-8a012126310c` |
-| Genesis nonce | 10000 |
-| Genesis hash | `a9651ecf2aec7c92443e7e7e8bfd4c6e6d5de3de8a52c04f9a98274d5031f9b9` |
-| Consensus version | v1 at genesis, v16 from height 1 |
+| Address prefixes | 190 standard, 191 integrated, 192 subaddress |
+| P2P port | 39480 TCP |
+| RPC port | 39481 TCP |
+| ZMQ RPC port | 39482 TCP |
+| Network UUID | `9e51307a-72a4-4865-b229-114f836ca7d0` |
+| Genesis nonce | 20261020 |
+| Genesis hash | `2a91ebe3007fb301072c5b0c8e130c782d1218e4633f6a30e6c2d692b6ac5f05` |
+| Consensus version | v1 at height 0, v19 from height 1 |
+| Initial next-block difficulty | 500,000 through height 15 |
+| Difficulty adjustment | Progressive LWMA from height 16, up to 90 intervals, 400,000 floor |
 
+**Provenance:** The entries above come from the archived isolated fresh candidate source, and its genesis hash is confirmed by saved daemon RPC. These parameters are not approved final-mainnet settings. The existing public development chain uses a separate network identity. Its parameters must not be used to connect to this candidate.
+
+**Release blocker:** The genesis output of 11.92092895 FRG is indexed but not yet independently proven permanently unspendable.
 Changing the genesis transaction or network UUID would create a different network. Ordinary application, seed-node, packaging, and user-interface updates do not require a chain restart.
 
 ## Proof of work and difficulty
 
 ForgeCoin uses RandomX proof of work. RandomX is designed to favor general-purpose CPUs and reduce the advantage of specialized mining hardware. It does not guarantee equal participation: large CPU farms, botnets, cloud resources, or a dominant pool can still acquire substantial hash power.
 
-The target interval is 120 seconds. Difficulty is recalculated from recent block timestamps and cumulative work using a configured 720-block window. Users do not manually set the current network difficulty. Changing the target interval, window, or difficulty algorithm is a consensus change and requires a coordinated network upgrade.
+The target interval is 120 seconds. The historical legacy difficulty calculation uses a 720-block lookback, while the recovered public development-chain source schedules newer difficulty rules at heights 500, 600 and 700, including 90-interval LWMA at height 700. The isolated fresh-mainnet candidate proposes a different startup schedule at height 16 with a 400,000 floor; that candidate has not been adopted by the public development chain. Users do not manually set the current network difficulty. Changing the target interval, window, or difficulty algorithm is a consensus change and requires a coordinated network upgrade.
 
 ## Tokenomics
 
@@ -71,7 +86,7 @@ Block-weight penalties can reduce a miner's base reward when a block exceeds the
 | Coinbase maturity | 60 blocks, approximately 2 hours |
 | Default ordinary output spendable age | 10 blocks, approximately 20 minutes |
 
-The source code cannot establish who, if anyone, controls the private key corresponding to the genesis output. The project should publicly document whether that output is spendable and its intended treatment before seeking exchange listing or material outside investment.
+The indexed genesis output in the tested candidate has unlock time 60. It has not been proved permanently unspendable; identifying an unlock time or maturity condition does not establish that any party knows its private spend key. The source code alone cannot establish who, if anyone, controls that key. The project should publicly document whether that output is spendable and its intended treatment before seeking exchange listing or material outside investment.
 
 The primary emission approaches its reference gradually rather than using periodic halvings. The estimates below assume uninterrupted 120-second blocks, no reward penalties, and the currently programmed rules.
 
@@ -97,7 +112,7 @@ Privacy is not anonymity against every adversary. Wallet compromise, address reu
 
 ## Local blockchain explorer
 
-The ForgeCoin desktop application includes an explorer that reads from the daemon on `127.0.0.1`. Each full-node user can inspect recent blocks and look up a block height, block hash, or transaction identifier without depending on a project website. Synchronized nodes should converge on the same valid chain. During a temporary network split, each explorer displays the chain currently accepted by its own node.
+The historical Windows Forms desktop included a local explorer reading from the daemon at `127.0.0.1`. The current Tauri desktop does not embed an explorer; a separate read-only explorer is maintained under `apps/explorer`. Each full-node user can inspect recent blocks and look up a block height, block hash, or transaction identifier without depending on a project website. Synchronized nodes should converge on the same valid chain. During a temporary network split, each explorer displays the chain currently accepted by its own node.
 
 ## Network security
 
