@@ -9,7 +9,7 @@ Evidence is archived **locally**, outside the public repository, at `C:\Users\tg
 | Area | Archived evidence | Supported conclusion | Limitation |
 | --- | --- | --- | --- |
 | Startup target | `cpp-startup-validation-report.md` | Standalone candidate C++ run reported 500000 at heights 1 and 15, 495000 at 16, 486394 at 90 and 486340 at 91 | Not real integrated block acceptance at transition |
-| PoW acceptance | `REAL-BLOCK-ACCEPTANCE-RESULT.md`, `2026-10-20-EXTENDED-MINING-HEIGHT8.md` | Offline candidate mined and accepted blocks, progressing to RPC height 8 | No accepted block at height 16 |
+| PoW acceptance | `FRESH_MAINNET_ISOLATED_MINING_RECHECK.md`; independently reopened copies of the preserved checkpoint | Archived native mining reached RPC height 17, including acceptance after startup-to-LWMA activation; copied checkpoint tip and next difficulty 400000 reproduced | Existing Windows candidate binary, not a fresh build; height 90–92 and ARM64 transition acceptance remain untested |
 | Peer sync | `2026-10-20-ISOLATED-BRANCH-SYNC-RESULT.md` | Independent Windows node caught up to same tip | Not a competing-chain reorg |
 | ARM64 agreement | `2026-10-20-HEIGHT3-MINING-AND-ORACLE-PROPAGATION.md` | Isolated Oracle ARM64 copy and Windows candidate agreed on persisted tip at RPC height 3 | Not cross-platform agreement through LWMA transition |
 | Source integration | `candidate-integration-audit.md`, `difficulty-history-correction.md` | Genesis-history inclusion discrepancy was found; candidate source-level corrective edits were described | End-to-end correctness unproven |
