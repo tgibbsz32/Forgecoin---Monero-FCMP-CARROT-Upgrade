@@ -1,5 +1,4 @@
-# ForgeCoin Technical and Economic Whitepaper
-
+# ForgeCoin Technical and Economic Whitepaper\n\n> **New proposed monetary policy (2026-10-24):** 55,000,000 FRG primary-emission reference with a 5,000,000 FRG genesis treasury and intended 50,000,000 FRG primary miner allocation; 0.20 FRG/block perpetual tail remains. This supersedes older 50M/no-premine planning; **55M is not a hard supply cap**. Candidate code/genesis and source validation are not yet updated. See [monetary policy proposal](MONETARY_POLICY_PROPOSAL_2026-10-24.md).\n
 > **Owner policy update (2026-10-24):** Owner policy confirmation: intended native emission retains the 50,000,000 FRG primary-emission reference (NOT a hard cap), perpetual 0.20 FRG/block tail and 100% subsidy to PoW miners, with no ICO/founder/team premine; exact release rules still require audit. The candidate genesis output may be retained ONLY if independently proven permanently unspendable. The development chain and fresh mainnet are separate, with NO automatic balance migration. See OWNER_POLICY_DECISIONS_2026-10-24.md.
 
 

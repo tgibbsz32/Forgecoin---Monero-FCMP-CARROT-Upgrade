@@ -1,5 +1,4 @@
-# ForgeCoin
-
+# ForgeCoin\n\n> **Monetary policy update (2026-10-24):** Proposed fresh mainnet now uses a **55,000,000 FRG primary-emission reference**, consisting of a **5,000,000 FRG disclosed genesis treasury** and an intended **50,000,000 FRG primary miner allocation**, while retaining perpetual **0.20 FRG/block tail emission**. **55M is NOT a hard cap**. The formula, new genesis, custody and tests remain pending; older 50M/no-premine statements are historical. See [monetary policy proposal](docs/MONETARY_POLICY_PROPOSAL_2026-10-24.md).\n
 ![ForgeCoin mark](docs/images/forgecoin-logo.png)
 
 > **Owner policy update (2026-10-24):** Owner policy: no automatic balance migration from the existing development chain; fresh-mainnet identity and difficulty parameters remain provisional. Native PoW miners receive 100% of block subsidy, no founder/team/ICO premine is authorized, and 0.20 FRG per-block tail emission is retained subject to source audit. Genesis output must be independently proven permanently unspendable before release. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.

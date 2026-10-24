@@ -1,5 +1,4 @@
-﻿## Owner decisions confirmed — 2026-10-24
-
+## Owner decisions confirmed — 2026-10-24\n\n> **New proposed monetary policy (2026-10-24):** 55,000,000 FRG primary-emission reference with a 5,000,000 FRG genesis treasury and intended 50,000,000 FRG primary miner allocation; 0.20 FRG/block perpetual tail remains. This supersedes older 50M/no-premine planning; **55M is not a hard supply cap**. Candidate code/genesis and source validation are not yet updated. See [monetary policy proposal](MONETARY_POLICY_PROPOSAL_2026-10-24.md).\n
 **Genesis:** Retain the existing candidate genesis output *only if independent cryptographic and consensus review proves it permanently unspendable*. Until then, neither the current transaction nor any replacement is approved for release. No allocated founder/team/ICO premine is authorized. Failure to prove permanent unspendability requires renewed explicit owner approval of a replacement design and repeat of genesis-dependent tests.
 
 **Monetary policy:** Intended issuance is 100% of native block subsidy to PoW miners, with no ICO or founder/team premine, a **50,000,000 FRG primary-emission reference (not a hard cap)**, and a perpetual **0.20 FRG/block tail reward**, conditional on exact release-code and economics audit. Fees are paid under native consensus; this statement does not grant treasury or governance mint authority.
