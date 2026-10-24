@@ -38,7 +38,7 @@ See the [pool, desktop, website, Observer and explorer implementation plan](docs
 
 ## Phase 4 — Optional Solana interoperability (not required for native launch)
 
-- Prototype a standard SPL or Token-2022 **wFRG** representation on devnet, backed **1:1 by user-deposited native FRG**, not new FRG issuance or a genesis treasury. Define deposit proof, secure mint/burn, redemption, supply/liability accounting, confirmations, reorg handling, caps and emergency shutdown.
+- Prototype a standard SPL or Token-2022 **wrapped FRG** representation on devnet, backed **1:1 by user-deposited native FRG**, not new FRG issuance or a genesis treasury. Define deposit proof, secure mint/burn, redemption, supply/liability accounting, confirmations, reorg handling, caps and emergency shutdown.
 - Design independently controlled custody or cryptographic locking; evaluate real Monero-derived multisig limitations. Use separate monitoring and signing services, bounded queues, idempotent jobs and verified wallet RPC flags.
 - Build a durable bridge ledger (e.g. PostgreSQL) for events, registered destinations, approvals, payouts and audits. Payment IDs are not authorization credentials.
 - Establish independently verifiable reserve attestations despite native private transfers; a public view key alone does not prove an unspent balance. Keep spend keys isolated and view secrets protected.
@@ -52,4 +52,4 @@ Investigate private DeFi execution, sealed-bid auctions, and privacy-preserving 
 
 ## Design archive and decisions
 
-Earlier dual-mining/ICO proposals and the proposed October 24 **55M primary reference / 5M genesis treasury** are **superseded**. Retain prior documents as clearly labeled history, not instructions for release code. The official launch remains L1-first and zero-premine.
+The proposed October 24 **55M primary reference / 5M genesis treasury** is withdrawn; it must not be used as launch instructions. The official launch remains L1-first and zero-premine.

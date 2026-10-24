@@ -3,7 +3,7 @@
 > **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](../ROADMAP.md).
 
 
-> **Owner policy update (2026-10-24):** Confirmed owner policy: keep the candidate genesis output only if independently proved permanently unspendable; keep PoW-only 100% miner subsidy, zero ICO/founder/team premine, a 50M primary-emission reference and perpetual 0.20-FRG tail (subject to code audit); retain candidate network/difficulty values provisionally; revisit a **10-seat native FRG governance chamber** without assuming legacy wFRG seat allocations; keep existing development and new mainnet distinct with **no automatic balance migration**. See OWNER_POLICY_DECISIONS_2026-10-24.md.
+> **Owner policy update (2026-10-24):** Confirmed owner policy: keep the candidate genesis output only if independently proved permanently unspendable; keep PoW-only 100% miner subsidy, zero ICO/founder/team premine, a 50M primary-emission reference and perpetual 0.20-FRG tail (subject to code audit); retain candidate network/difficulty values provisionally; revisit a **10-seat native FRG governance chamber** with seat allocations still unratified; keep existing development and new mainnet distinct with **no automatic balance migration**. See OWNER_POLICY_DECISIONS_2026-10-24.md.
 
 
 **Status: public development-chain source plus an isolated fresh-mainnet candidate. NO RELEASE APPROVAL.**
@@ -39,7 +39,7 @@ Sources: locally saved `2026-10-24/.../outputs/reorg-height17-repeat/evidence.js
 3. **Difficulty/network identity:** Approve or revise the candidate's address prefixes/ports/UUID/nonce, 500,000 initial difficulty, 400,000 floor, LWMA start at height 16 and 90-interval window.
 4. **Governance:** Determine constituency seat counts, founder participation if any, thresholds, term lengths, election authority, conflicts and independent review. Native FRG miner bonds remain unimplemented; no quorum or binding election can be advertised.
 5. **Launch treatment:** How should existing development-chain holders be told about a separate new genesis, including any lack of balance portability? No migration is implied.
-6. **Deferred integrations:** Previous wFRG mining-linked issuance is withdrawn. A fully FRG-backed optional future Solana representation is research only; no launch or issuance commitment.
+6. **Deferred integrations:** A fully FRG-backed optional future Solana representation is research only; no launch or issuance commitment.
 
 ## Release gates still open
 

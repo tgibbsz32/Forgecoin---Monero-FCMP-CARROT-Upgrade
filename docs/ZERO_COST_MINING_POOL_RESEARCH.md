@@ -4,7 +4,7 @@
 
 ## Goal
 
-Allow multiple independent Windows miners to submit RandomX shares to a ForgeCoin (FRG) pool with auditable proportional payouts, while keeping required monthly hosting charges at $0. The launch is *native FRG only*. No wFRG, bridge or proof-of-stake features are part of pool mining. Pool rewards must originate exclusively from native PoW blocks and network transaction fees under actual consensus. Pool software must never generate additional FRG.
+Allow multiple independent Windows miners to submit RandomX shares to a ForgeCoin (FRG) pool with auditable proportional payouts, while keeping required monthly hosting charges at $0. The launch is *native FRG only*. No wrapped FRG, bridge or proof-of-stake features are part of pool mining. Pool rewards must originate exclusively from native PoW blocks and network transaction fees under actual consensus. Pool software must never generate additional FRG.
 
 ## Hosting comparison — verify actual account quota before configuration
 
