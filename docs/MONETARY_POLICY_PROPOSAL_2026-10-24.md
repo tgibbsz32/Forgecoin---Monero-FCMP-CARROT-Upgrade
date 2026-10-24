@@ -1,4 +1,8 @@
-﻿# Proposed FRG monetary policy — 2026-10-24
+# Withdrawn proposal â€” 55M primary reference / 5M genesis treasury
+
+**WITHDRAWN 2026-10-24. Do not implement or advertise as current policy.** The owner restored the original 50M reference, zero allocated premine, full PoW block subsidy and perpetual 0.20 FRG tail. See [current roadmap](../ROADMAP.md). Historical material follows.
+
+# Proposed FRG monetary policy — 2026-10-24
 
 **Owner decision — design target, not implemented or validated in the current consensus binary.**
 

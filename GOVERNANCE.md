@@ -1,6 +1,7 @@
 # ForgeCoin Governance
 
-> **Monetary policy update (2026-10-24):** Proposed fresh mainnet now uses a **55,000,000 FRG primary-emission reference**, consisting of a **5,000,000 FRG disclosed genesis treasury** and an intended **50,000,000 FRG primary miner allocation**, while retaining perpetual **0.20 FRG/block tail emission**. **55M is NOT a hard cap**. The formula, new genesis, custody and tests remain pending; older 50M/no-premine statements are historical. See [monetary policy proposal](docs/MONETARY_POLICY_PROPOSAL_2026-10-24.md).
+> **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](ROADMAP.md).
+
 
 > **Owner policy update (2026-10-24):** Owner has requested design review of a **10-seat native FRG representative chamber**, without authorizing binding elections. Former wFRG staker seats are NOT converted into holder-weighted native FRG votes. Miner eligibility requires verifiable mining and enforceable native FRG bonding; implementation and seat allocation are unresolved. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
 

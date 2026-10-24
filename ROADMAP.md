@@ -1,47 +1,48 @@
-# ForgeCoin Roadmap
+# ForgeCoin development roadmap — native-first (October 24, 2026)
 
-> **Monetary policy update (2026-10-24):** Proposed fresh mainnet now uses a **55,000,000 FRG primary-emission reference**, consisting of a **5,000,000 FRG disclosed genesis treasury** and an intended **50,000,000 FRG primary miner allocation**, while retaining perpetual **0.20 FRG/block tail emission**. **55M is NOT a hard cap**. The formula, new genesis, custody and tests remain pending; older 50M/no-premine statements are historical. See [monetary policy proposal](docs/MONETARY_POLICY_PROPOSAL_2026-10-24.md).
+**Status:** Proposed development milestones. Roadmap features are not launched, funded, security-audited or guaranteed.
 
-> **Owner policy update (2026-10-24):** The public development chain and fresh candidate are separate, with no automatic balance migration. A retained genesis output must be independently proven permanently unspendable. Intended issuance is 100% PoW miner subsidy, no ICO/founder premine and a 0.20 FRG tail, subject to source audit. Candidate difficulty values remain provisional. A 10-seat native FRG chamber is only a design target; seats and founder rights are unratified.
+**Native V1 launch:** Maintain the original Monero-derived FRG network with a **50,000,000 FRG primary-emission reference**, **no allocated genesis premine**, **100% of native block subsidies for Proof-of-Work miners**, and **perpetual 0.20 FRG/block tail emission** (therefore no fixed maximum supply). This restores the policy before the October 24 Solana/genesis-treasury redesign. Historical 55M/5M notes are withdrawn proposals. Existing development-chain and fresh-mainnet candidate are separate; there is no automatic balance migration.
 
-> **Verified tests (2026-10-24):** Isolated Windows candidate accepted blocks through RPC height 17 including first post-LWMA block. Repeat offline heavier-chain reorg passed with restart and cleanup. 105 height-90/91/92 calculation cases matched on Windows x64 and Linux x86-64, not ARM64. Native block acceptance through those heights and genesis permanent unspendability remain unverified.
+## Phase 1 — Validate and release independent L1 (required before launch)
 
-**Updated:** 2026-10-24
-**Active scope:** Native ForgeCoin (FRG) only; no Solana token issuance.
+1. Resolve the existing genesis output: independently prove permanent unspendability or replace it in a fresh candidate and retest. No allocated FRG to founder or treasury.
+2. Reconcile the exact miner reward calculation, 50M reference, coinbase maturity and tail subsidy against tested consensus code.
+3. Mine and verify native blocks across the LWMA boundary through at least heights 90–92; repeat adversarial timestamp, chain-reorganization and fork-choice tests.
+4. Check native consensus equivalence across Windows x64, Linux x86-64 and ARM64, publish reproducible binaries/checksums, and obtain independent review.
+5. Validate wallet restore/send/receive, CPU solo mining, XMRig/pool compatibility, node discovery and RPC isolation; rehearse public bootstrap and incident recovery.
+6. Finish main website, documentation, verified downloads, explorer and honest network statistics; do not market placeholder data as live.
 
-## Pre-launch research — zero-dollar mining pool feasibility (not deployed)
+## Phase 2 — Adoption, mining pool and noncustodial treasury
 
-- Investigate hosting a native FRG Stratum pool on existing Oracle Always Free ARM64 resources, subject to verified remaining quota, plus a home-desktop fallback.
-- Compare a conventional pool with share accounting and operator-controlled payouts against a ForgeCoin-specific P2Pool fork with direct noncustodial payouts. Neither is proven compatible or public-ready.
-- Require isolated multi-miner RandomX share tests, native block acceptance, mature payout reconciliation, reorganization and failure recovery, wallet custody audit and network hardening.
-- Do not reconfigure the live Oracle development daemon, expose unrestricted RPC, or rely on paid services or trial credits.
-- Owner-approved initial target: 1% operator fee, both solo and pool mining, a planned cap of 100 concurrent worker connections, and a caption disclosing that the project pool will initially be the only advertised pool until independent pools exist. Capacity must be enforced and load-tested before being marketed as operational. Architecture, payout rules, deployment isolation and launch dependency remain open.
-- [Read the zero-cost mining pool research](docs/ZERO_COST_MINING_POOL_RESEARCH.md).
+- Launch mining infrastructure only after payout/reorg/share validation. The proposed official pool has a **1% operator fee**, pool/solo options and a **100-worker target** that is not verified capacity; independent pools remain permissionless.
+- Fund an optional development treasury from **voluntary donations, foundation-owned mining, an explicitly disclosed portion of real pool fees, and future revenue**, not from genesis issuance or miner-reward diversion.
+- Publish custody, expenditure and reserve reporting; establish tested independent signer procedures before funds become material.
+- Explore native FRG mining-participation governance bonds only after independent enforceability/security review; no votes or locks currently authorize consensus changes.
 
-## Phase 1 — Independent native FRG network
-- Validate native RandomX PoW mining, emission, peer discovery, wallet security, solo/pool payouts and chain reorganizations.
-- Produce reproducible binaries, independent testnet coverage, public explorer and operational guidance.
-- Preserve 100% of native FRG block subsidies for miners under native consensus.
-- Do not introduce a Solana mint, wFRG dual-mining rewards, cross-chain token claims or Solana staking in V1.
+## Phase 3 — Native FRG selling and swaps (USDC, ETH, SOL)
 
-## Phase 2 — Native FRG governance qualification
-- Design **native FRG governance bonds** for miner representatives: independently verified mining activity plus continuously locked native FRG for a qualifying period.
-- Specify and audit technically enforceable native-FRG lock proofs; a signed wallet balance alone does not establish an unspent, time-locked bond.
-- Adopt explicit minimum amounts, lock duration, unbonding, ownership/uniqueness limits, reorg handling and loss-of-qualification rules **before binding authority**.
-- Guarantee miners a meaningful designated constituency but no unilateral project-governance or native consensus override.
-- Build representative accountability, protected votes, privacy-aware eligibility and independent audits. Existing election APIs and staking categories are practice-only.
+- **First: discovery and quotes.** Evaluate real liquidity providers/exchanges supporting *native* FRG, verify quote freshness, network selection, provider terms, fees and availability. No listing, trade or FRG price is currently promised.
+- **Peer-to-peer route:** prototype authenticated offer matching and self-custodial settlement; publish fraud/chargeback/counterparty and dispute risks. A listing board is not an atomic swap.
+- **Atomic-swap route:** evaluate Monero-derived FRG ↔ Ethereum/EVM approaches, refund paths, lock timing, reorgs and key safety on testnets. ETH and Ethereum-network USDC are candidates only after protocol validation.
+- **SOL route:** investigate providers accepting native FRG or a separately validated bridge; Solana DEX access alone cannot settle a native FRG transfer.
+- **Wallet Swap interface:** display executable third-party quotes, recipient/network/fees/slippage, explicit approval, timeout/refund and transaction tracking. Never fabricate rates or custody guarantees.
+- Require independent security review, legal assessment of any custodial/exchange activity, and actual counterparties/liquidity before production trades.
 
-## Phase 3 — Native adoption and trading
-- Explore direct FRG exchange support and practical integrations without promising prices or listings.
-- Support independent infrastructure and transparency. Do not use token issuance to finance these activities.
+## Phase 4 — Optional Solana interoperability (not required for native launch)
 
-## Optional future research — Solana FRG market representation
-**Deferred; not authorized for V1.**
-Study a securely redeemable **1:1 FRG-backed Solana token** if direct native market access proves inadequate. This is *not* a second mining-issued currency. Require independently verifiable deposits and reserves despite native privacy, secure mint/burn/redemption, signer independence, legal/security review and demonstrated liquidity before deciding whether to launch. No mining-linked wFRG, Solana staking rewards, Token-2022 fees or activation blocks are committed.
+- Prototype a standard SPL or Token-2022 **wFRG** representation on devnet, backed **1:1 by user-deposited native FRG**, not new FRG issuance or a genesis treasury. Define deposit proof, secure mint/burn, redemption, supply/liability accounting, confirmations, reorg handling, caps and emergency shutdown.
+- Design independently controlled custody or cryptographic locking; evaluate real Monero-derived multisig limitations. Use separate monitoring and signing services, bounded queues, idempotent jobs and verified wallet RPC flags.
+- Build a durable bridge ledger (e.g. PostgreSQL) for events, registered destinations, approvals, payouts and audits. Payment IDs are not authorization credentials.
+- Establish independently verifiable reserve attestations despite native private transfers; a public view key alone does not prove an unspent balance. Keep spend keys isolated and view secrets protected.
+- Respect native FRG's **8 decimal places** versus a Solana token's chosen decimals with exact integer arithmetic.
+- Investigate SOL/USDC liquidity and optional Solana Actions/Blinks, bridge analytics and miner-opt-in liquidity contributions only **after** the safe core bridge is demonstrated. User deposits collateralize wrapped supply; optional pool liquidity and development revenue are separate budgets.
+- Security audit, economic stress testing, operations funding, counterparty demand and explicit deployment approval are mandatory stage gates.
 
-## Historical designs
-The earlier `ForgecoinDual-Mining-Tokenomics-Architecture.md` and v0.1 charter described speculative mining-linked wFRG issuance and staking. Those designs are **superseded**, not current instructions. Solana-focused prototype code may remain archived or labeled experimental, but must not be deployed or advertised as FRG V1 features.
+## Phase 5 — Optional privacy applications
 
-## Development research artifact
+Investigate private DeFi execution, sealed-bid auctions, and privacy-preserving governance as standalone research. Solana's public execution does not make those features private automatically: each requires separate cryptographic protocols, threat models, audits and credible user demand. No release dates, mining-linked Solana rewards, guaranteed yield or Token-2022 transfer fees are authorized.
 
-See the [native FRG miner bond proposal and synthetic tests](research/governance_bonds/README.md). This isolated policy experiment verifies no real mining or lock proofs and grants no authority; production governance and native lock changes remain gated on independent review.
+## Design archive and decisions
+
+Earlier dual-mining/ICO proposals and the proposed October 24 **55M primary reference / 5M genesis treasury** are **superseded**. Retain prior documents as clearly labeled history, not instructions for release code. The official launch remains L1-first and zero-premine.

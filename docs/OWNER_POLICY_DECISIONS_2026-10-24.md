@@ -1,6 +1,7 @@
 ## Owner decisions confirmed — 2026-10-24
 
-> **New proposed monetary policy (2026-10-24):** 55,000,000 FRG primary-emission reference with a 5,000,000 FRG genesis treasury and intended 50,000,000 FRG primary miner allocation; 0.20 FRG/block perpetual tail remains. This supersedes older 50M/no-premine planning; **55M is not a hard supply cap**. Candidate code/genesis and source validation are not yet updated. See [monetary policy proposal](MONETARY_POLICY_PROPOSAL_2026-10-24.md).
+> **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](../ROADMAP.md).
+
 
 **Genesis:** Retain the existing candidate genesis output *only if independent cryptographic and consensus review proves it permanently unspendable*. Until then, neither the current transaction nor any replacement is approved for release. No allocated founder/team/ICO premine is authorized. Failure to prove permanent unspendability requires renewed explicit owner approval of a replacement design and repeat of genesis-dependent tests.
 
