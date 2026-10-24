@@ -16,4 +16,4 @@ def offline_daemon_args(executable, data_dir, rpc_port=49581, p2p_port=49580, zm
             "--rpc-bind-ip","127.0.0.1","--rpc-bind-port",str(rpc_port),
             "--p2p-bind-ip","127.0.0.1","--p2p-bind-port",str(p2p_port),
             "--zmq-rpc-bind-ip","127.0.0.1","--zmq-rpc-bind-port",str(zmq_port),
-            "--non-interactive"]
+            ]
