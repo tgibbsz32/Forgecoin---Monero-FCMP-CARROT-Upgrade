@@ -1,5 +1,8 @@
 # ForgeCoin Technical and Economic Whitepaper
 
+> **Owner policy update (2026-10-24):** Owner policy confirmation: intended native emission retains the 50,000,000 FRG primary-emission reference (NOT a hard cap), perpetual 0.20 FRG/block tail and 100% subsidy to PoW miners, with no ICO/founder/team premine; exact release rules still require audit. The candidate genesis output may be retained ONLY if independently proven permanently unspendable. The development chain and fresh mainnet are separate, with NO automatic balance migration. See OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
 > **Documentation status (2026-10-24):** This September technical/economic description is not a final release specification. The public development-chain source and the isolated fresh-mainnet candidate use different network identities and difficulty schedules. The 11.92092895 FRG genesis output is indexed in the tested candidate, and permanent unspendability has not been established. See RELEASE_STATUS_2026-10-24.md.
 
 

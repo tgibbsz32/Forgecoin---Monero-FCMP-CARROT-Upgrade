@@ -1,5 +1,8 @@
 # ForgeCoin Governance
 
+> **Owner policy update (2026-10-24):** Owner has requested design review of a **10-seat native FRG representative chamber**, without authorizing binding elections. Former wFRG staker seats are NOT converted into holder-weighted native FRG votes. Miner eligibility requires verifiable mining and enforceable native FRG bonding; implementation and seat allocation are unresolved. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
 > **Documentation status (2026-10-24):** This file describes consensus-change stewardship only. The provisional FRG governance charter is not ratified; native miner governance bonds, representative seats, quorum and binding elections are not implemented. Practice governance votes grant no authority. See governance-charter.md and docs/RELEASE_STATUS_2026-10-24.md.
 
 

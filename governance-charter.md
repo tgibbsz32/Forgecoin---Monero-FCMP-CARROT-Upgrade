@@ -1,8 +1,11 @@
 # ForgeCoin Governance Charter
 
+> **Owner policy update (2026-10-24):** **Owner decision (2026-10-24):** Revisit a **10-seat representative chamber** using native FRG only. This restores the *size* as a design target, **not** the old five wFRG staker-seat allocation or any founder entitlement. Exact seats, founder participation, voting thresholds, terms and veto rights require separate owner approval. Native FRG bonding remains technically unimplemented and all votes nonbinding. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
 > **Documentation status (2026-10-24):** Status clarification: this charter is a proposal, not binding governance. Mining-based FRG bond verification is not implemented; no seat allocation or quorum is ratified. The isolated candidate genesis output remains unproved permanently unspendable. See docs/RELEASE_STATUS_2026-10-24.md.
 
-**Version:** 0.2 â€” Provisional / Pre-Mainnet Draft
+**Version:** 0.2 Ã¢â‚¬â€ Provisional / Pre-Mainnet Draft
 **Status:** FRG-only working proposal; not ratified or enforced as binding governance
 **Project:** ForgeCoin (FRG), an independent proof-of-work network
 **Last updated:** 2026-10-22

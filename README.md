@@ -1,5 +1,8 @@
 # ForgeCoin
 
+> **Owner policy update (2026-10-24):** Owner policy: no automatic balance migration from the existing development chain; fresh-mainnet identity and difficulty parameters remain provisional. Native PoW miners receive 100% of block subsidy, no founder/team/ICO premine is authorized, and 0.20 FRG per-block tail emission is retained subject to source audit. Genesis output must be independently proven permanently unspendable before release. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
+
+
 > **Documentation status (2026-10-24):** The repository currently describes the public development-chain source. A separately identified fresh-mainnet candidate passed offline mining through RPC height 17 and a competing-chain reorganization repeat, but has NOT been approved or deployed. See docs/RELEASE_STATUS_2026-10-24.md.
 
 

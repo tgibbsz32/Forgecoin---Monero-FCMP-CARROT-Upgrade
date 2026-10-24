@@ -1,4 +1,7 @@
-﻿# ForgeCoin release status and document decisions — October 24, 2026
+# ForgeCoin release status and document decisions — October 24, 2026
+
+> **Owner policy update (2026-10-24):** Confirmed owner policy: keep the candidate genesis output only if independently proved permanently unspendable; keep PoW-only 100% miner subsidy, zero ICO/founder/team premine, a 50M primary-emission reference and perpetual 0.20-FRG tail (subject to code audit); retain candidate network/difficulty values provisionally; revisit a **10-seat native FRG governance chamber** without assuming legacy wFRG seat allocations; keep existing development and new mainnet distinct with **no automatic balance migration**. See OWNER_POLICY_DECISIONS_2026-10-24.md.
+
 
 **Status: public development-chain source plus an isolated fresh-mainnet candidate. NO RELEASE APPROVAL.**
 
