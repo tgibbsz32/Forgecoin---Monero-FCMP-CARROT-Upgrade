@@ -98,6 +98,12 @@ recovery mechanism is introduced. Publish withdrawal limits before any deposits.
 
 ## Synthetic model and tests
 
+The [private proof and continuity review](PRIVATE_CONTINUITY_REVIEW.md) examines
+the existing reserve-proof disclosure boundary and native relay restrictions at
+a pinned revision. Its separate `continuity.py` experiment tests synthetic
+interval coverage, including gaps, replacement and reorg invalidation. It does
+not turn balance snapshots into proofs or change the snapshot model below.
+
 `model.py` is a pure in-memory policy experiment, isolated from governance API,
 registry, elections, wallet and daemon. It has no routes, database, signatures,
 network calls, addresses or transaction construction. All input attestations
