@@ -69,10 +69,19 @@ Stage 3 (**payout verification**): Test a mined coinbase through maturity and re
 
 **Operational caveat:** Centralizing a pool and full node on one $0 VM creates a single point of failure and potentially concentrates early FRG hash power. Encourage continued solo mining and multiple independent pool operators. Plan for quota exhaustion and inability to guarantee SLA.
 
-## Open decisions for the project owner
+## Owner-approved initial pool design (2026-10-24)
+
+- Offer both **solo mining and pool mining** in the desktop application. Solo mining remains permissionless and does not incur the project-pool operator fee.
+- **Initial project-operated pool operator fee: 1% of eligible pooled mining rewards**. Distinguish it from network payout transaction fees and publish accounting before connecting external miners.
+- **100 concurrent miner/worker connections** is the *planned advertised maximum*, not verified throughput. Connections represent worker sessions, not necessarily 100 unique people. Enforce a tested active-session cap in the pool gateway before launch; no claim of 100 supported miners may be made until a load test proves it.
+- Initial project pool is expected to be the first advertised ForgeCoin pool, **not an exclusive consensus-authorized pool**. Other operators are free to create independent pools; users may select one, and existing solo miners remain supported.
+- Display an explicit in-app explanatory caption. No specific pool endpoint is currently verified or hardcoded. Until deployment, the pool option remains user-configured and must not pretend the project pool is live.
+- Future operator handoff or project-pool retirement requires advance notice and complete matured payout accounting; the blockchain does not depend on the operator remaining online.
+
+## Open operational decisions
 
 1. **Pool architecture**: prioritize conventional Stratum with transparent payouts first, P2Pool-only noncustodial design first, or prototype both?
-2. **Fee policy**: 0% operator fee initially, or a disclosed percentage? Transaction network fees/payout transaction costs must be handled separately.
+2. **Fee implementation**: the 1% operator fee is approved; determine precise fee deduction rules, accounting and miner-facing reporting. Payout transaction fees/costs are separate.
 3. **Payout policy**: PPLNS vs proportional rounds, maturity/confirmation threshold, minimum payout, orphan and fee treatment. Nothing is ratified.
 4. **Infrastructure isolation**: use existing Oracle VM if capacity allows, or reserve a standalone free VM/desktop with separated failure domain?
 5. **Release coupling**: make an independently tested public pool a mainnet launch requirement, or start with solo mining and open public pool afterward?

@@ -13,7 +13,7 @@
 - Compare a conventional pool with share accounting and operator-controlled payouts against a ForgeCoin-specific P2Pool fork with direct noncustodial payouts. Neither is proven compatible or public-ready.
 - Require isolated multi-miner RandomX share tests, native block acceptance, mature payout reconciliation, reorganization and failure recovery, wallet custody audit and network hardening.
 - Do not reconfigure the live Oracle development daemon, expose unrestricted RPC, or rely on paid services or trial credits.
-- Owner decisions required: architecture, fees, payouts, deployment isolation and launch dependency.
+- Owner-approved initial target: 1% operator fee, both solo and pool mining, a planned cap of 100 concurrent worker connections, and a caption disclosing that the project pool will initially be the only advertised pool until independent pools exist. Capacity must be enforced and load-tested before being marketed as operational. Architecture, payout rules, deployment isolation and launch dependency remain open.
 - [Read the zero-cost mining pool research](docs/ZERO_COST_MINING_POOL_RESEARCH.md).
 
 ## Phase 1 — Independent native FRG network
