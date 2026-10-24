@@ -80,3 +80,5 @@ Version 0.1.3 adds independently saved CPU thread counts, Solo/pool log selectio
 The existing Solo mode and user-configured XMRig Pool mode are the starting point for the [pool delivery plan](../../docs/POOL_EXPLORER_IMPLEMENTATION_PLAN.md). Add a verified official native FRG pool profile only after deployment; retain independent-pool configuration and solo mining. Disclose the **1% operator fee** on eligible pooled rewards separately from network payout fees and XMRig donation policy. Solo mining has no project-pool operator fee.
 
 Official-pool accepted-share/payout status, TLS/offline/full-pool handling and end-to-end two-miner mature-payout tests remain pending. The 100-worker target is not tested capacity. Pool website/dashboard, standalone Pool Observer and online explorer are separate planned services, not embedded or deployed features of this desktop. Security review and staged rollout are required before public integration.
+
+See the [workstream handoff](../../docs/HANDOFF_POOL_EXPLORER_2026-10-24.md) for branch context, completed documentation work and the next desktop integration deliverable.
