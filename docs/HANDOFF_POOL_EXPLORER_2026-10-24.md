@@ -49,3 +49,7 @@ Full acceptance criteria and security requirements are in the [implementation pl
 - `git diff --cached --check` passed before the implementation-plan/logo commit. No native pool, desktop, explorer integration, load or production payout tests were run for these documentation/static-site changes.
 - `.github/workflows/pages.yml` publishes on qualifying `main` pushes or manual dispatch. Pushing this review branch does not update the public website. Leave PR #17 open and unmerged; do not dispatch deployment as part of this handoff.
 - Temporary localhost previews are disposable verification aids, not public services or durable handoff URLs. Recreate a local preview from `docs/` when needed.
+
+## Website direction follow-up
+
+The owner confirmed the project direction is settled and requested website copy reflecting the project and its future. The homepage now presents native monetary policy, mining choice, community governance and future interoperability together. Community copy reflects the ten-seat native FRG design target and labels legacy eligibility/voting tools as archived demonstrations. Downloads and mining pages distinguish the development chain from the future mainnet and describe planned services. This is confirmation of direction, not evidence of deployment, ratified seat allocations or passed release gates. Preserve the review-only branch workflow and local untracked drafts.
