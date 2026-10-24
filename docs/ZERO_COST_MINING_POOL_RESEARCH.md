@@ -89,3 +89,7 @@ Stage 3 (**payout verification**): Test a mined coinbase through maturity and re
 ## Required exit criteria
 
 A pool is **not launch-ready** until the exact final FRG network parameters are frozen; share validation, miner accounting, chain reorgs and payouts pass under native consensus on Windows and ARM64; wallet custody and network perimeter receive security review; a basic operational budget confirms $0 within actual OCI quota; and two independent miners can mine and receive correct native FRG. Do not set up a public pool on the existing Oracle deployment before these checks or before genesis and final mainnet policy are approved.
+
+## Implementation and rollout tracking
+
+The [native pool and explorer implementation plan](POOL_EXPLORER_IMPLEMENTATION_PLAN.md) expands this feasibility study into pool construction, Tauri solo/pooled integration, pool website/dashboard, standalone Pool Observer and online explorer completion. The offline accounting model is not a deployed pool. Required gates are offline tests, isolated mature payouts and reorg/recovery tests, private hosted staging with capacity/security review, then controlled beta and public operations. Payout verification must precede beta participation involving third-party funds; the earlier numbered topology sections are not permission to defer it until after public beta.

@@ -11,11 +11,18 @@
 3. Mine and verify native blocks across the LWMA boundary through at least heights 90–92; repeat adversarial timestamp, chain-reorganization and fork-choice tests.
 4. Check native consensus equivalence across Windows x64, Linux x86-64 and ARM64, publish reproducible binaries/checksums, and obtain independent review.
 5. Validate wallet restore/send/receive, CPU solo mining, XMRig/pool compatibility, node discovery and RPC isolation; rehearse public bootstrap and incident recovery.
-6. Finish main website, documentation, verified downloads, explorer and honest network statistics; do not market placeholder data as live.
+6. Complete the online blockchain explorer from `apps/explorer`: block/transaction lookup, pagination, confirmations and reorg-aware data; add API/UI and isolated-node tests, independent security review, HTTPS deployment, monitoring and rollback. Publish the public URL only after external verification. Finish the website, verified downloads and honest network statistics; never label placeholder data as live.
 
 ## Phase 2 — Adoption, mining pool and noncustodial treasury
 
-- Launch mining infrastructure only after payout/reorg/share validation. The proposed official pool has a **1% operator fee**, pool/solo options and a **100-worker target** that is not verified capacity; independent pools remain permissionless.
+- **Build and deploy the official native FRG pool:** implement FRG-compatible Stratum/RandomX validation, durable share accounting, reorg/maturity handling and safe native payouts. The **1% operator fee** applies to eligible pooled rewards, separately from payout transaction costs; exact payout rules must be published before beta. The **100-worker target** is not verified capacity.
+- **Tauri desktop solo/pooled mining:** retain local solo mining and custom pools; add verified official-pool selection, fee disclosure, accepted-share and payout status after deployment. Existing XMRig launch/telemetry is not an operational official pool. Solo mining has no project-pool fee; independent pools remain permissionless.
+- **Pool website/dashboard:** complete overview, worker/share history, blocks, balances/payouts, setup and FAQ pages with a secured backend and timestamped read-only statistics. Any account or payout-setting changes require verified authorization. GitHub Pages alone cannot host the pool or backend.
+- **Standalone Pool Observer:** build a separate read-only web tool with pool/network observations, solo-versus-pooled estimates, share effort and probability charts. Test calculator formulas and invalid inputs; label illustrative inputs and stale/unavailable data explicitly.
+- **Delivery gates:** offline build and deterministic tests → isolated two-miner mature payouts/reorg/restart tests → private hosted staging and 100-worker load testing → independent security review → controlled beta → monitored public rollout with backup/restore and rollback. Public pool timing relative to mainnet launch remains undecided.
+
+See the [pool, desktop, website, Observer and explorer implementation plan](docs/POOL_EXPLORER_IMPLEMENTATION_PLAN.md) for existing-source evidence, acceptance tests and release gates. All completion/deployment milestones above remain pending.
+
 - Fund an optional development treasury from **voluntary donations, foundation-owned mining, an explicitly disclosed portion of real pool fees, and future revenue**, not from genesis issuance or miner-reward diversion.
 - Publish custody, expenditure and reserve reporting; establish tested independent signer procedures before funds become material.
 - Explore native FRG mining-participation governance bonds only after independent enforceability/security review; no votes or locks currently authorize consensus changes.
