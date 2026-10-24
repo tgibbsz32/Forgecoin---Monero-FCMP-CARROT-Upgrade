@@ -4,7 +4,7 @@ Status: development-stage proposal, not ratified. No real funds, production
 voting, native lock changes, staking yield or proof-of-stake consensus.
 The [charter](../../governance-charter.md) and [roadmap](../../ROADMAP.md)
 remain authoritative for project scope. V1 is native FRG only. Mining-linked
-wFRG issuance and Solana staking remain deferred historical ideas; this
+secondary token issuance and Solana staking remain deferred historical ideas; this
 proposal neither implements nor reauthorizes them.
 
 ## Decision proposed

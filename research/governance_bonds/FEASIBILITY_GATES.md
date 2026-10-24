@@ -2,7 +2,7 @@
 
 **Status:** research only, October 22, 2026. No funded bonds, production API, voting authority, changes to native transactions or consensus.
 
-This memo follows [the synthetic miner-bond policy](README.md). Its purpose is to prevent a synthetic eligibility result from being mistaken for a verifiable, privacy-preserving native FRG lock. **No bridge to Solana and no wFRG issuance** is involved.
+This memo follows [the synthetic miner-bond policy](README.md). Its purpose is to prevent a synthetic eligibility result from being mistaken for a verifiable, privacy-preserving native FRG lock. **No bridge to Solana and no secondary token issuance** is involved.
 
 ## The essential test
 

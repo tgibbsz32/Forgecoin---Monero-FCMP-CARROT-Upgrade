@@ -3,7 +3,7 @@
 > **Current owner direction (2026-10-24):** Restored native-only fair launch: 50M FRG primary-emission reference, no allocated premine, 100% PoW miner subsidy and perpetual 0.20 FRG/block tail. The 55M/5M genesis treasury proposal is withdrawn. Native trading and user-deposit-backed Solana interoperability are future research. See [roadmap](ROADMAP.md).
 
 
-> **Owner policy update (2026-10-24):** **Owner decision (2026-10-24):** Revisit a **10-seat representative chamber** using native FRG only. This restores the *size* as a design target, **not** the old five wFRG staker-seat allocation or any founder entitlement. Exact seats, founder participation, voting thresholds, terms and veto rights require separate owner approval. Native FRG bonding remains technically unimplemented and all votes nonbinding. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
+> **Owner policy update (2026-10-24):** **Owner decision (2026-10-24):** Revisit a **10-seat representative chamber** using native FRG only. This restores the *size* as a design target, **not** the old five legacy staker-seat allocation or any founder entitlement. Exact seats, founder participation, voting thresholds, terms and veto rights require separate owner approval. Native FRG bonding remains technically unimplemented and all votes nonbinding. See docs/OWNER_POLICY_DECISIONS_2026-10-24.md.
 
 
 > **Documentation status (2026-10-24):** Status clarification: this charter is a proposal, not binding governance. Mining-based FRG bond verification is not implemented; no seat allocation or quorum is ratified. The isolated candidate genesis output remains unproved permanently unspendable. See docs/RELEASE_STATUS_2026-10-24.md.
@@ -13,7 +13,7 @@
 **Project:** ForgeCoin (FRG), an independent proof-of-work network
 **Last updated:** 2026-10-22
 
-> **Scope decision:** Launch and active development are **native FRG only**. No wFRG issuance, dual mining, mining-linked Solana rewards, Solana staking, transfer-fee token, companion mint, or Solana trading asset is authorized for V1. Previously proposed wFRG economics are withdrawn from the active design. Any future Solana representation requires a new design, independent security/economic review, and explicit approval. See [ROADMAP.md](ROADMAP.md).
+> **Scope decision:** Launch and active development are **native FRG only**. No secondary token issuance, bridge, or Solana integration is authorized for V1. Any future Solana representation requires a new design, independent security/economic review, and explicit approval. See [ROADMAP.md](ROADMAP.md).
 
 ## 1. Mission and principles
 
@@ -33,13 +33,13 @@ The current native chain targets **120 seconds per block** and proposes a perman
 
 The detailed emission formula, network configuration, activation heights and supply behavior must be validated against the actual native code. This charter does not establish an immutable cap and cannot override node consensus.
 
-**There is no V1 wFRG mining ratio, block-height activation, staking-reserve allocation, companion supply ceiling, Token-2022 transfer-fee schedule, founder fee share, or bridge reserve.** The historical 0.5:1 and 90/10 arrangements are canceled proposals, not earnable entitlements.
+**No secondary asset or bridge reserve is authorized for V1.** No secondary-token entitlements exist.
 
 ## 3. Governance scope and representation
 
 Governance concerns project-maintained software, shared project resources, published policies, grants, community participation and the proposal process. It cannot independently change the rules accepted by native full nodes.
 
-The earlier proposed **10-seat chamber (including five wFRG staker-elected seats)** is **withdrawn as the active composition**. No replacement seat allocation, term schedule or binding chamber quorum is yet ratified. Native FRG miner representation will be **qualified by both independently verifiable mining activity and a native FRG governance bond**, rather than wFRG staking. That qualification does not grant miners unilateral control. The project must publish a revised representative model that prevents domination by miners, founders, concentrated holders, or infrastructure operators.
+The **ten-seat native FRG governance chamber** remains a design target only. No replacement seat allocation, term schedule or binding chamber quorum is yet ratified. Native FRG miner representation will be **qualified by both independently verifiable mining activity and a native FRG governance bond**. That qualification does not grant miners unilateral control. The project must publish a revised representative model that prevents domination by miners, founders, concentrated holders, or infrastructure operators.
 
 Potential constituencies to evaluate include verified community members, **qualified bonded native FRG miners** (including provable pool participants), developers, infrastructure operators and independent security contributors. These are candidates, not currently allocated seats or ballot rights. Provisional representatives may advise but must not claim binding authority.
 
@@ -71,7 +71,7 @@ A proposed election system should:
 
 ## 5. Proposals and decision rights
 
-Until a replacement constitution is approved, binding representative votes, protected economic ratifications, chambers with special issuance powers, and stakeholder votes based on wFRG are **not operational or authorized**.
+Until a replacement constitution is approved, binding representative votes, protected economic ratifications, chambers with special issuance powers, and unratified stakeholder voting mechanisms are **not operational or authorized**.
 
 A future procedure must specify: who may propose; who may vote; quorum; thresholds; disclosure and review periods; eligible identity snapshots; recusal; challenge and appeal windows; exact implementation artifacts; and independent security review. Any treasury or code authority must remain explicitly limited and independently accountable. An administrator's access to project infrastructure does not grant an unrestricted right to change native monetary policy.
 
@@ -97,11 +97,11 @@ Do not deploy the practice governance API, local admin dashboard or mock Solana-
 
 ## 8. Future Solana interoperability (research only)
 
-The future roadmap may explore a **redeemable, fully FRG-backed representation on Solana**, primarily for exchange access, payments and compatible DeFi use. This would be a separate optional project. It must not reuse the canceled mining-linked companion issuance as if it were a 1:1 backing mechanism.
+The future roadmap may explore a **redeemable, fully FRG-backed representation on Solana**, primarily for exchange access, payments and compatible DeFi use. This would be a separate optional project. Any wrapped asset must be fully collateralized by verified native FRG deposits.
 
-Any proposed bridge requires native deposit verification, transparent reserve/liability accounting despite FRG privacy, independent controls, safe mint/burn and redemption, chain-reorganization handling, audits, legal review, credible liquidity and a decision to launch. Until those requirements are satisfied, **no wFRG token issuance or deployment is planned**.
+Any proposed bridge requires native deposit verification, transparent reserve/liability accounting despite FRG privacy, independent controls, safe mint/burn and redemption, chain-reorganization handling, audits, legal review, credible liquidity and a decision to launch. Until those requirements are satisfied, **no wrapped FRG token issuance or deployment is planned**.
 
-See [ROADMAP.md](ROADMAP.md) for stage gates. Existing archived dual-mining materials are historical only and should not be used for mining pool, wallet or token implementation.
+See [ROADMAP.md](ROADMAP.md) for stage gates. Future cross-chain features require a separate reviewed specification before implementation.
 
 ## 9. Open governance-design questions
 
@@ -112,10 +112,8 @@ See [ROADMAP.md](ROADMAP.md) for stage gates. Existing archived dual-mining mate
 5. What native FRG bond amount, lock proof, duration, withdrawal procedure and enforcement method are feasible without compromising native privacy or ordinary PoW transfers?
 6. Which governance features can remain off-chain and advisory until the network is mature?
 
-## 10. Version history
+## 10. Charter status
 
-- **v0.1 (2026-10-21):** Former proposed wFRG dual-issuance, staking, fee and stake-weighted chamber architecture; never ratified.
-- **v0.2 (2026-10-22):** Explicit FRG-only project scope. Withdrew wFRG dual mining, companion issuance, staking economics and wFRG-dependent governance. Moved any Solana representation to optional future research; introduced a proposed native FRG governance bond requirement for miner representatives; native consensus unchanged.
 
 **Change-control notice:** This document records a development planning decision. It does not prove that the native code changed, that a binding constitutional vote occurred, or that earlier prototype software has been removed.
 
