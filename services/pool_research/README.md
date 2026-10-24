@@ -7,3 +7,9 @@ The `WorkerRegistry` simulates a 100-active-connection limit by unique connectio
 Run offline: `python -m unittest discover -s services/pool_research -p test_model.py -v`.
 
 Before a public pool, implement and independently verify native FRG-compatible Stratum/RandomX template handling, difficulty-vetted shares, durable share accounting, a real connection limiter, reorg-aware reward eligibility, payout safety, rate limiting, ARM64 runtime performance and actual 100-worker load testing. Solo mining and independent pools must remain permissionless, and the official pool's intended 1% fee must be separately disclosed from transaction costs.
+
+## Experimental persistent reward ledger (offline only)
+
+`ledger.py` adds a local SQLite prototype for **already independently verified** block records. It stores per-block integer allocations, deduplicates block hashes, tracks pending versus mature rewards, persists across restarts, and reverses allocations when callers identify an orphaned block. It explicitly rejects automatic revival of a previously orphaned block. Tests: `python -m unittest services.pool_research.test_ledger -v` from the repository root.
+
+**Not production-safe:** There is no native chain RPC verification, share/RandomX validation, Stratum listener, canonical-chain completeness guarantee, payout-address verification, PPLNS implementation, operational concurrency policy, payout scheduler, multisig wallet, transaction signing, or spend authorization. `balances()` reports hypothetical mature allocations, **not withdrawable balances**. The caller must supply a complete, independently verified canonical block-hash set for the ledger scope; supplying a partial set incorrectly marks omitted blocks as orphaned. Do not connect this prototype to a wallet or use it with real miners' funds.
