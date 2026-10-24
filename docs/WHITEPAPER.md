@@ -31,24 +31,30 @@ The project follows four operating principles:
 
 ## Architecture
 
-ForgeCoin uses a CryptoNote-derived transaction model and Monero's version 16 consensus feature set from block height 1. The inherited technology includes RingCT confidential amounts, CLSAG signatures, Bulletproofs+, view tags, stealth addressing, and a fixed ring size of 16 under version 16 rules.
+ForgeCoin uses a CryptoNote-derived transaction model. The isolated fresh-mainnet candidate has a genesis block at protocol v1 and activates protocol v19 at height 1; this is not a public release or activation. The inherited technology includes RingCT confidential amounts, CLSAG signatures, Bulletproofs+, view tags, stealth addressing, and a fixed ring size of 16 under version 16 rules.
 
 Full nodes verify every accepted block and transaction. Miners select valid transactions, perform RandomX proof of work, and extend the chain with the greatest cumulative difficulty. A miner with majority hash power can reorganize recent blocks or censor transactions, but it cannot create rewards or transactions that violate the rules enforced by honest full nodes.
 
 ## Network identity
 
-| Item | Mainnet value |
+| Item | Isolated fresh-mainnet candidate (provisional) |
 | --- | --- |
 | Network name | ForgeCoin |
 | Currency symbol | FRG |
-| Address prefixes | 90 standard, 91 integrated, 92 subaddress |
-| P2P port | 19480 TCP |
-| RPC port | 19481 TCP |
-| Network UUID | `388dca1c-ba93-41d9-9641-8a012126310c` |
-| Genesis nonce | 10000 |
-| Genesis hash | `a9651ecf2aec7c92443e7e7e8bfd4c6e6d5de3de8a52c04f9a98274d5031f9b9` |
-| Consensus version | v1 at genesis, v16 from height 1 |
+| Address prefixes | 190 standard, 191 integrated, 192 subaddress |
+| P2P port | 39480 TCP |
+| RPC port | 39481 TCP |
+| ZMQ RPC port | 39482 TCP |
+| Network UUID | `9e51307a-72a4-4865-b229-114f836ca7d0` |
+| Genesis nonce | 20261020 |
+| Genesis hash | `2a91ebe3007fb301072c5b0c8e130c782d1218e4633f6a30e6c2d692b6ac5f05` |
+| Consensus version | v1 at height 0, v19 from height 1 |
+| Initial next-block difficulty | 500,000 through height 15 |
+| Difficulty adjustment | Progressive LWMA from height 16, up to 90 intervals, 400,000 floor |
 
+**Provenance:** The entries above come from the archived isolated fresh candidate source, and its genesis hash is confirmed by saved daemon RPC. These parameters are not approved final-mainnet settings. The existing public development chain uses a separate network identity. Its parameters must not be used to connect to this candidate.
+
+**Release blocker:** The genesis output of 11.92092895 FRG is indexed but not yet independently proven permanently unspendable.
 Changing the genesis transaction or network UUID would create a different network. Ordinary application, seed-node, packaging, and user-interface updates do not require a chain restart.
 
 ## Proof of work and difficulty
