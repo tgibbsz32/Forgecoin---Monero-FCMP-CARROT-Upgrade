@@ -8,6 +8,7 @@ import argparse
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 REQUIRED = {
@@ -35,6 +36,19 @@ def validate(payload):
     for k in ("desktop_sha256", "daemon_sha256"):
         if not HEX64.fullmatch(str(payload.get(k, ""))):
             problems.append(k + " must be a 64-character hex SHA256")
+    stamp = payload.get("captured_at_utc")
+    if isinstance(stamp, str):
+        try:
+            if not stamp.endswith("Z"):
+                raise ValueError("not UTC Z")
+            parsed = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+            if parsed > datetime.now(timezone.utc):
+                problems.append("captured_at_utc must not be in the future")
+        except ValueError:
+            problems.append("captured_at_utc must be ISO 8601 UTC")
+    network = str(payload.get("network", "")).lower()
+    if network and not any(term in network for term in ("isolated", "disposable", "test-only")):
+        problems.append("network must identify isolated test infrastructure")
     def walk(obj, path="$"):
         if isinstance(obj, dict):
             for key, value in obj.items():
@@ -77,8 +91,14 @@ def self_test():
     invalid = json.loads(json.dumps(valid))
     invalid["password"] = "dummy"
     assert any("prohibited secret" in x for x in validate(invalid))
+    invalid = json.loads(json.dumps(valid))
+    invalid["captured_at_utc"] = "invalid"
+    assert any("ISO 8601" in x for x in validate(invalid))
+    invalid = json.loads(json.dumps(valid))
+    invalid["network"] = "public mainnet"
+    assert any("isolated" in x for x in validate(invalid))
     assert validate({})
-    print("PASS: 5 evidence validation controls")
+    print("PASS: 7 evidence validation controls")
 
 
 def main():
