@@ -1303,3 +1303,5 @@ if (iwyu_tool_path AND PYTHONINTERP_FOUND)
     VERBATIM
   )
 endif()
+
+include(cmake/ForgeFcmpBackend.cmake)
