@@ -85,8 +85,7 @@ try {
   if (@(Get-ChildItem -LiteralPath $original -Force).Count -ne 0) {
     throw "A file appeared in the replacement directory"
   }
-  if (-not [string]::Equals($final,("\\?\\"+$files[0].FullName),
-      [StringComparison]::OrdinalIgnoreCase)) {throw "Opened child not in original directory"}
+  if (-not $final.EndsWith($files[0].FullName,[StringComparison]::OrdinalIgnoreCase)) {throw "Opened child not in original directory"}
   $created=$files[0].FullName
   Write-Output "PASS: NT root-handle-relative create stayed with original after pathname replacement"
 } finally {
