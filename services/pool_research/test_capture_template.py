@@ -1,14 +1,21 @@
-"""Exercise the template capture tool against a disposable local HTTP fixture."""
+"""Exercise template capture only against a disposable local HTTP fixture."""
 import json
 import tempfile
 import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.error import HTTPError
+from unittest.mock import patch
 from services.pool_research.capture_template import capture
 
 class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
+        if self.path=="/redirect":
+            self.send_response(307)
+            self.send_header("Location","http://example.com/json_rpc")
+            self.end_headers()
+            return
         if self.path!="/json_rpc":
             self.send_error(404);return
         count=int(self.headers.get("Content-Length","0"))
@@ -44,7 +51,36 @@ class CaptureTests(unittest.TestCase):
     def test_reject_external_urls(self):
         with tempfile.TemporaryDirectory() as d:
             for url in ("https://127.0.0.1:39481/json_rpc","http://example.com/json_rpc",
-                        "http://127.0.0.1:39481/admin","http://user:pass@127.0.0.1/json_rpc"):
+                        "http://localhost:39481/json_rpc","http://127.0.0.1:39481/admin",
+                        "http://user:pass@127.0.0.1:39481/json_rpc",
+                        "http://127.0.0.1/json_rpc"):
                 with self.subTest(url=url),self.assertRaises(ValueError):
                     capture(url,"TEST",Path(d)/"out.json")
+    def test_redirect_never_followed(self):
+        # Serve a redirect at an explicitly allowed /json_rpc endpoint.
+        class RedirectHandler(Handler):
+            def do_POST(self):
+                self.send_response(307)
+                self.send_header("Location","http://example.com/json_rpc")
+                self.end_headers()
+        server=ThreadingHTTPServer(("127.0.0.1",0),RedirectHandler)
+        thread=threading.Thread(target=server.serve_forever,daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                output=Path(d)/"out.json"
+                with self.assertRaises(HTTPError) as caught:
+                    capture(f"http://127.0.0.1:{server.server_port}/json_rpc","TEST",output)
+                self.assertEqual(caught.exception.code,307)
+                self.assertFalse(output.exists())
+        finally:
+            server.shutdown();server.server_close();thread.join(3)
+    def test_ignores_proxy_environment(self):
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/"sanitized.json"
+            with patch.dict("os.environ",{"HTTP_PROXY":"http://127.0.0.1:1",
+                                          "http_proxy":"http://127.0.0.1:1"},clear=False):
+                result=capture(f"http://127.0.0.1:{self.server.server_port}/json_rpc","TEST",path)
+            self.assertEqual(result["height"],17)
+
 if __name__=="__main__":unittest.main()
