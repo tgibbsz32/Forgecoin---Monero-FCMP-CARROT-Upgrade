@@ -114,3 +114,70 @@ No nonce search, chain initialization, block submission, coin creation, new
 service or public listening port. Existing chain and explorer remain unchanged.
 Next: complete/evaluate static pool preparation page, then reversible /pool/
 deployment preserving existing explorer routes, ACME and disabled mining.
+
+## Stage 2 completed: Oracle preparation website published
+
+Public URL: https://150.136.209.227/pool/ . This is a preparation/readiness
+website, NOT a functioning mining pool or live hashrate/payout dashboard.
+Source: apps/pool-site/ . Exact authentic logo preserved. No JavaScript, external
+font/image requests, analytics, forms, wallet inputs, API polling or connect/mining
+controls. Explicitly labels old network, new-mainnet non-launch, disabled mining,
+block submission and payouts; planned 1% fee is not represented as active charging.
+
+Independent design review: PASS. Desktop browser and overflow checks passed.
+Exact mobile/tablet pixel screenshots were unavailable in the browser control
+surface; responsive CSS reviewed. No different-provider evaluator was available;
+review was performed by a separate agent on the inherited model. No such limits
+are evidence of a failed functional test; mobile visual QA remains outstanding.
+
+Deployment helper: apps/pool-site-deploy.sh, Oracle-only, root via sudo.
+It admits only static file extensions, refuses symlinks, validates existing nginx,
+backs up its configuration, adds /pool/ routes to both existing HTTP/HTTPS server
+blocks, validates/reloads nginx and checks assets/explorer. It never starts or
+configures a miner, node or wallet. Existing explorer/ACME routes are preserved.
+The first attempt failed its immediate route check and restored the original
+configuration automatically. Inspection showed correct files/permissions; the
+second attempt added a bounded readiness wait for graceful nginx worker turnover
+and succeeded. Old failed v1 release/backup are retained for audit; do not mistake
+their existence for the active deployment.
+
+- Active release: /opt/forgecoin-pool/releases/preparation-20261025-v2/pool/ .
+- Backup: /var/backups/forgecoin-pool/preparation-20261025-v2/nginx.conf .
+- Staged source: /home/ubuntu/pool-preparation/site-20261025-v1/ .
+- HTML SHA256 b953328f993725fa8ae69372edf881d90a4121fa73c09487bf821432e829a8c7.
+- CSS SHA256 8a8eb25a481793f6527566b13c697791f31917423df786dcd08a476ebb85fcca.
+- Logo SHA256 fd4aede81c6b50e78449722ba584e7cd3e0b94d4186e1ed7fc46fa938aca5a25.
+- External HTTPS page/CSS/logo: HTTP 200; downloaded public HTML hash matches source.
+- External POST /pool/: 405; old explorer root: 200.
+- nginx -t passed; forgecoin, forgecoin-explorer and nginx remain active.
+- Both forgecoin-mainnet-staging and forgecoin-mainnet-explorer-staging inactive.
+- Daemon mining_status: active false, speed 0, threads 0; listening ports unchanged.
+- No new chain, genesis change, block submission, premine or payout occurred.
+
+Rollback (via the already verified SSH connection):
+
+```sh
+sudo cp -a /var/backups/forgecoin-pool/preparation-20261025-v2/nginx.conf /etc/nginx/sites-available/forgecoin-explorer
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+This restores the earlier explorer-only routing; static files can remain inert.
+The helper intentionally refuses an already installed /pool/ route; future
+updates must inspect/replace only that root rather than rerun initial install.
+Old chain retirement is authorized but deferred while the old explorer remains
+useful. No old-chain deletion or backup is claimed; take a consistent backup
+and handle explorer dependencies before retiring it.
+
+## Resume after stage 2
+
+The pool website is published and native synthetic-work checks now execute on
+Oracle ARM64. There is still no deployed Stratum listener or production accounting
+service. Next implement bounded synthetic Stratum integration with the native
+verifier, unique worker/job assignment, difficulty/duplicate/stale checks and
+durable share bookkeeping. Keep chain submission and wallet/payout integrations
+absent/disabled; never connect it to the old node as the future mainnet. Validate
+timeouts, overload, restart and per-worker isolation before any miner-facing beta.
+Trusted XMRig source build remains needed for later controlled client integration;
+do not use the unverified download scripts. Actual coin-producing tests and new
+mainnet launch remain outside current authorization. Append the next stage result
+here, refresh the user-facing outputs handoff and push the review branch.
