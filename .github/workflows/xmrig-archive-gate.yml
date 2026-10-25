@@ -1,0 +1,27 @@
+name: XMRig archive integrity gate tests
+
+on:
+  pull_request:
+    paths:
+      - "tools/verify_xmrig_upstream_archive.py"
+      - "tools/test_verify_xmrig_upstream_archive.py"
+      - ".github/workflows/xmrig-archive-gate.yml"
+  push:
+    paths:
+      - "tools/verify_xmrig_upstream_archive.py"
+      - "tools/test_verify_xmrig_upstream_archive.py"
+      - ".github/workflows/xmrig-archive-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  archive-gate-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Offline synthetic checksum unit tests
+        run: python -m unittest tools.test_verify_xmrig_upstream_archive -v
