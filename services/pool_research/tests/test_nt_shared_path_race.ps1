@@ -55,7 +55,7 @@ public static class NtRootProbe {
         IO_STATUS_BLOCK ios=new IO_STATUS_BLOCK();
         SafeFileHandle child;
         int result=NtCreateFile(out child,0xC0000000|0x00020000|0x00100000,
-          ref attrs,ref ios,IntPtr.Zero,0x80,0,2,0x40|0x20|0x00200000,IntPtr.Zero,0);
+          ref attrs,ref ios,IntPtr.Zero,0x80,7,2,0x40|0x20|0x00200000,IntPtr.Zero,0);
         if(result!=0) throw new InvalidOperationException("NtCreateFile NTSTATUS 0x"+result.ToString("X8"));
         renamer.GetAwaiter().GetResult();
         using(child) {
