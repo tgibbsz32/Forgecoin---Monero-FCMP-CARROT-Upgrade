@@ -38,6 +38,17 @@ All commands above target offline/synthetic behavior unless their own explicit o
 - **Desktop Pool:** demonstrate trusted client and real compatible isolated pool, accepted/rejected shares, reconnect and telemetry, share allocation and authorized mature payout.
 - **Public infrastructure:** external verification, independent security audit, TLS, monitoring, backups, crash/reorg handling, access control and rollback. No unreviewed public RPC or payouts.
 
+## Trusted XMRig archive gate (read-only)
+
+The repository includes `tools/verify_xmrig_upstream_archive.py`, which checks only the **named upstream v6.26.0 Windows x64 ZIP** against the recorded publisher-archive digest. It does **not** unzip or execute anything:
+
+```powershell
+py tools/verify_xmrig_upstream_archive.py --archive "C:\\path\\xmrig-6.26.0-windows-x64.zip"
+py -m unittest tools.test_verify_xmrig_upstream_archive -v
+```
+
+**Expected for the locally downloaded archive recorded in issue #95: `BLOCKED` / exit code 1.** A matching checksum is only integrity evidence against a known recorded digest: independently authenticate the publisher/checksum list, and review source changes, compiler, donation behavior and dependencies for any custom XMRig build. A custom source-built artifact must not be passed off as the publisher's unmodified ZIP.
+
 ## Evidence required for a pass
 
 Every supported release gate should record:
