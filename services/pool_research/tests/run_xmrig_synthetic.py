@@ -62,6 +62,27 @@ async def main():
         journal = SyntheticJournal(root / "checks.sqlite", max_records=8)
         adapter = PersistentRandomXAdapter(args.worker, timeout=10)
         listener = SyntheticListener(adapter, journal, capacity=1, idle_timeout=30, job_ttl=90)
+
+        # Local diagnostics only: never print wallet/login, raw mining blobs,
+        # the seed or claimed results. This is a disposable synthetic fixture.
+        inspect_request = listener.sessions.inspect
+        def traced_inspect(connection, raw):
+            try:
+                request = inspect_request(connection, raw)
+            except Exception as error:
+                print(f"STRATUM_REJECT: {type(error).__name__}: {error}", flush=True)
+                raise
+            print(f"STRATUM_REQUEST: {request['method']}", flush=True)
+            return request
+        listener.sessions.inspect = traced_inspect
+        send_response = listener.send
+        async def traced_send(writer, request_id, result=None, error=None):
+            status = "ERROR:" + str(error.get("message")) if error else (
+                "LOGIN_JOB" if isinstance(result, dict) and "job" in result
+                else "RESPONSE")
+            print(f"STRATUM_RESPONSE: {status}", flush=True)
+            await send_response(writer, request_id, result=result, error=error)
+        listener.send = traced_send
         miner = None
         passed = False
         started = time.monotonic()
@@ -95,7 +116,8 @@ async def main():
                     await asyncio.sleep(0.1)
                 if not passed:
                     # Local diagnostic only: synthetic credentials and loopback.
-                    print((root / "client.log").read_text(errors="replace")[-12000:])
+                    print(f"XMRIG_EXIT: {miner.poll()}", flush=True)
+                    print((root / "client.log").read_text(errors="replace")[-12000:], flush=True)
                     raise AssertionError("no native-verified synthetic client submission recorded")
         finally:
             if miner is not None:

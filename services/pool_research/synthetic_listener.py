@@ -101,7 +101,11 @@ class SyntheticListener:
                                             error={"code": -1, "message": "miner does not support rx/0"})
                             return
                         # Random previous-hash bytes isolate each worker's work.
-                        header = b"\x10\x10\x01" + secrets.token_bytes(32) + bytes(4)
+                        # XMRig rx/0 hashes a nonce at byte offset 39. A
+                        # canonical five-byte timestamp varint gives the
+                        # synthetic CryptoNote header that exact offset.
+                        header = (b"\x10\x10\x80\x80\x80\x80\x01"
+                                  + secrets.token_bytes(32) + bytes(4))
                         blob = header + b"\x44" * 32 + b"\x01"
                         template = validate_template({"result": {
                             "height": 1, "difficulty": self.difficulty,
