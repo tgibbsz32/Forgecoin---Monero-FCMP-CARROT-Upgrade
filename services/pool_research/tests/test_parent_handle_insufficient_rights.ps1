@@ -17,8 +17,11 @@ try {
     $acl.AddAccessRule($rule)
   }
   [IO.Directory]::SetAccessControl($root,$acl)
+  $ErrorActionPreference="Continue"
   $output=@(& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $target -Directory $root 2>&1)
-  if($LASTEXITCODE -eq 0){throw 'Insecure rights were accepted'}
+  $exitCode=$LASTEXITCODE
+  $ErrorActionPreference="Stop"
+  if($exitCode -eq 0){throw 'Insecure rights were accepted'}
   if(-not (@($output | Where-Object {"$_" -match 'lacks required directory rights'}).Count)){throw 'Validator rejected for unexpected reason'}
   Write-Output 'PASS: directory handle validator rejected insufficient approved-principal access rights'
 } finally {
