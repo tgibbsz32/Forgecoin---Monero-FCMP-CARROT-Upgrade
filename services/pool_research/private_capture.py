@@ -16,6 +16,8 @@ def persist_private_capture(response, destination):
     template=validate_template(response,8)
     result=response.get("result",response)
     minimal={key:result[key] for key in _FIELDS}
+    if os.name == "nt":
+        raise PermissionError("Windows private capture disabled until explicit NTFS ACL enforcement is implemented")
     path=Path(destination)
     if path.exists():
         raise FileExistsError("refusing to overwrite private template capture")
