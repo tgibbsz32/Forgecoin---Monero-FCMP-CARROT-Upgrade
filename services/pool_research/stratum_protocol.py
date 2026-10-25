@@ -14,17 +14,35 @@ ALLOWED_METHODS = frozenset({"login", "submit", "keepalived"})
 class ProtocolError(ValueError):
     pass
 
+
+def _reject_duplicate_keys(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ProtocolError("duplicate JSON field")
+        obj[key] = value
+    return obj
+
+
+def _reject_nonfinite(value):
+    raise ProtocolError("nonfinite JSON number")
+
+
 def parse_request(data: bytes) -> dict:
     if not isinstance(data, bytes) or not data or len(data) > MAX_FRAME_BYTES:
         raise ProtocolError("invalid frame length")
     try:
-        obj = json.loads(data.decode("utf-8"))
+        obj = json.loads(data.decode("utf-8"),
+                         object_pairs_hook=_reject_duplicate_keys,
+                         parse_constant=_reject_nonfinite)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ProtocolError("invalid JSON") from exc
     if not isinstance(obj, dict):
         raise ProtocolError("request must be a JSON object")
-    if set(obj) - {"id", "method", "params"}:
+    if set(obj) - {"id", "method", "params", "jsonrpc"}:
         raise ProtocolError("unrecognized request field")
+    if "jsonrpc" in obj and obj["jsonrpc"] != "2.0":
+        raise ProtocolError("unsupported JSON-RPC version")
     if obj.get("method") not in ALLOWED_METHODS:
         raise ProtocolError("unsupported method")
     if "id" not in obj or type(obj["id"]) not in (str, int) or len(str(obj["id"])) > 64:
@@ -34,7 +52,7 @@ def parse_request(data: bytes) -> dict:
         raise ProtocolError("params must be object")
     method = obj["method"]
     if method == "login":
-        if set(params) - {"login", "pass", "agent", "rigid"}:
+        if set(params) - {"login", "pass", "agent", "rigid", "algo"}:
             raise ProtocolError("unsupported login field")
         login = params.get("login")
         if not isinstance(login, str) or not 1 <= len(login) <= MAX_LOGIN_LENGTH:
@@ -42,6 +60,12 @@ def parse_request(data: bytes) -> dict:
         for key in ("pass", "agent", "rigid"):
             if key in params and (not isinstance(params[key], str) or len(params[key]) > 256):
                 raise ProtocolError("invalid optional login field")
+        if "algo" in params:
+            algorithms = params["algo"]
+            if (not isinstance(algorithms, list) or not 1 <= len(algorithms) <= 64
+                    or any(not isinstance(a, str) or not 1 <= len(a) <= 32
+                           or not a.isascii() or not a.isprintable() for a in algorithms)):
+                raise ProtocolError("invalid algorithm capabilities")
     elif method == "submit":
         if set(params) != {"id", "job_id", "nonce", "result"}:
             raise ProtocolError("incomplete submit")

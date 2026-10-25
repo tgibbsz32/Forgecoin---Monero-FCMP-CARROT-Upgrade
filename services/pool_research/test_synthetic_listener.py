@@ -68,6 +68,30 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
         return {"id": login["id"], "job_id": job["job_id"],
                 "nonce": nonce, "result": digest.hex()}
 
+    async def test_xmrig_capabilities_on_wire(self):
+        compatible = await self.client()
+        reader, writer = compatible
+        writer.write((json.dumps({
+            "id": 1, "jsonrpc": "2.0", "method": "login",
+            "params": {"login": "synthetic-only", "algo": ["rx/wow", "rx/0"]}
+        }) + "\n").encode())
+        await writer.drain()
+        accepted = json.loads(await asyncio.wait_for(reader.readline(), 2))
+        self.assertIsNone(accepted["error"])
+        self.assertEqual(accepted["result"]["job"]["algo"], "rx/0")
+
+        incompatible = await self.client()
+        reader, writer = incompatible
+        writer.write((json.dumps({
+            "id": 1, "jsonrpc": "2.0", "method": "login",
+            "params": {"login": "synthetic-only", "algo": ["rx/wow"]}
+        }) + "\n").encode())
+        await writer.drain()
+        rejected = json.loads(await asyncio.wait_for(reader.readline(), 2))
+        self.assertIn("does not support rx/0", rejected["error"]["message"])
+        self.assertEqual(await asyncio.wait_for(reader.readline(), 2), b"")
+        self.assertEqual(self.journal.count(), 0)
+
     async def test_native_or_fake_digest_success_duplicate_and_mismatch(self):
         pair = await self.client()
         login = await self.login(pair)
