@@ -62,3 +62,24 @@ sample**, not for source-matched real block templates. Real ForgeCoin
 template reconstruction, consensus difficulty/seed boundaries, actual daemon
 block submission, canonical block maturity, PPLNS allocations, payout signing
 and settlement remain unverified. Keep public and payout services disabled.
+
+
+## Follow-up diagnostics and fail-closed check (2026-10-25)
+
+The isolated run was repeated successfully using the pinned binary hashes
+above: XMRig login, job delivery, two `submit` requests and native RandomX
+verification produced `records=2; credited=0`. The test exits after stopping
+client and verifier processes. The runner now records only request method names,
+response status/error classifications, and the client exit code on failure;
+it does **not** log raw block/seed material or claimed digests.
+
+As an isolation negative control, the same Python runner was invoked directly
+in the ordinary WSL network context. It raised
+`RuntimeError: requires unprivileged loopback-only network namespace` before
+opening the listener or spawning XMRig. The updated Stratum/listener/journal/
+persistent-worker offline test selection passed **31/31** cases.
+
+GitHub tracking remains open: #28 requires candidate-daemon provenance/shutdown
+follow-up, #29 requires end-to-end native candidate template-to-job proof, and
+#30 requires fully source-matched mining share acceptance and safeguards.
+Neither the synthetic result nor this report closes those release blockers.
