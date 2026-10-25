@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 
-_HEX_DIGEST = re.compile(r"[0-9a-f]{64}\n?\Z")
+_HEX_DIGEST = re.compile(r"[0-9a-f]{64}(?:\r?\n)?\Z")
 
 class NativeRandomXError(ValueError):
     pass
@@ -38,7 +38,7 @@ class NativeRandomXAdapter:
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise NativeRandomXError("native RandomX execution failed") from exc
-        if result.returncode != 0 or len(result.stdout) > 65:
+        if result.returncode != 0 or len(result.stdout) > 66:
             raise NativeRandomXError("native RandomX returned an invalid result")
         try:
             output = result.stdout.decode("ascii")
