@@ -225,3 +225,64 @@ balances or spending authority, then a reviewed persistent native verifier and
 trusted-source client compatibility harness. Keep the new-mainnet no-launch and
 no-premine boundaries. Website continues to say share verification is in
 development, which is accurate: full pool/client/accounting integration is absent.
+
+## Stage 4 completed: durable synthetic verification records and restart checks
+
+Added synthetic_journal.py and integrated mandatory journal writes into the
+loopback listener. A synthetic success response now requires a committed record
+and includes recorded=true, synthetic=true, credited=false. Jobs still use fixed
+test nonces; there is no mining search, daemon, block submission or wallet.
+
+SQLite stores job+nonce, session token, computed digest, difficulty, hashing-blob
+SHA256, seed and timestamp, with synthetic=1/credited=0 constraints. No login,
+password, wallet address, balances or reward claims are stored. Duplicate
+identical evidence is idempotent; conflicting evidence is refused. Transactions
+use FULL synchronous/DELETE journaling, 100 ms lock wait, 10,000-record maximum
+and 16,384-page ceiling. Unrelated existing databases are rejected untouched.
+Use private research paths: this is not a hostile-filesystem defense or
+tamper-proof/independently attested audit system.
+
+On restart, evidence persists but old live jobs/session tokens are not restored;
+old jobs are rejected and clients receive new synthetic work. Journal failure
+does not return success. Such failure can consume a live in-memory nonce; there
+are no earnings to recover. A commit can precede a lost network response, so
+these records are not a production exactly-once crediting guarantee. Expiry is
+checked again after native hashing, before recording a result.
+
+Validation:
+
+- 35 local tests passed (journal, socket, protocol, bound-job and native adapter),
+  with ResourceWarnings enabled as errors. Local socket hashes explicitly fake.
+- 17 Oracle ARM64 journal/socket tests passed in 41.092 seconds using the real
+  native RandomX reference executable for socket checks.
+- Includes reopen/dedup/conflict tests, schema refusal of credited=1, invalid
+  inputs, capacity, locked/read-only storage, unrelated-database preservation,
+  abrupt child-process exit before commit and SQLite integrity recovery.
+- Socket tests confirm records survive listener restart, old jobs cannot replay,
+  no success on failed/full storage, and no recording if work expires mid-hash.
+- Initial local cleanup test leaked its fixture connection; corrected explicit
+  close and the final run passed. Initial native expiry test counted client hash
+  time incorrectly; adjusted deadline to exercise expiry during server hashing.
+  Neither failed test was treated as acceptance evidence.
+- New-mainnet staging services remained inactive; daemon mining active=false,
+  speed=0/threads=0; public preparation site HTTPS remained 200. No production
+  data directory, chain configuration, nginx route or payout setting changed.
+
+Remote sources remain under /home/ubuntu/pool-preparation/20261025-native . Tests
+use disposable databases and clean them up; no listener service or live database
+was deployed. CLI now requires --journal /private/research/checks.sqlite in
+addition to --executable. The listener's caller owns the journal lifecycle.
+
+Reproduce Oracle checks from that work directory:
+
+```sh
+FORGE_SYNTHETIC_NATIVE=/home/ubuntu/pool-preparation/20261025-native/randomx_reference python3 -W error::ResourceWarning -m unittest services.pool_research.test_synthetic_journal services.pool_research.test_synthetic_listener -v
+```
+
+This validates process-exit rollback, not hardware power-loss resilience or
+production accounting. Full share accounting/reorg maturity, public listener
+hardening, persistent native verifier throughput and trusted-source XMRig
+compatibility remain unfinished. Next stage: replace subprocess-per-hash with
+a bounded persistent native verifier and test crash/timeout recovery, retaining
+the synthetic-only boundary. Do not enable new-mainnet or coin-producing work.
+Append subsequent stage evidence and refresh this chat's outputs handoff.

@@ -7,6 +7,7 @@ wallet, block-submission or reward-ledger integration.
 import argparse
 import asyncio
 import hmac
+import hashlib
 import json
 import secrets
 import time
@@ -18,12 +19,13 @@ from .pow_boundary import VerificationError
 from .share_preflight import SharePreflightError
 from .stratum_protocol import MAX_FRAME_BYTES, ProtocolError, SessionTable
 from .template_adapter import validate_template
+from .synthetic_journal import SyntheticJournal, JournalError
 
 SEED = bytes.fromhex("2a91ebe3007fb301072c5b0c8e130c782d1218e4633f6a30e6c2d692b6ac5f05")
 
 
 class SyntheticListener:
-    def __init__(self, verifier, *, capacity=4, difficulty=1, idle_timeout=10,
+    def __init__(self, verifier, journal, *, capacity=4, difficulty=1, idle_timeout=10,
                  job_ttl=60, request_limit=32):
         if not callable(verifier):
             raise ValueError("native verifier required")
@@ -36,6 +38,7 @@ class SyntheticListener:
         if type(request_limit) is not int or not 1 <= request_limit <= 64:
             raise ValueError("invalid request limit")
         self.verifier = verifier
+        self.journal = journal
         self.sessions = SessionTable(capacity)
         self.difficulty = difficulty
         self.idle_timeout, self.job_ttl = idle_timeout, job_ttl
@@ -136,10 +139,17 @@ class SyntheticListener:
                             raise ProtocolError("claimed digest mismatch")
                         if result.status != "POW_THRESHOLD_MET_UNCREDITED":
                             raise ProtocolError("low difficulty")
+                        if time.monotonic() - created > self.job_ttl:
+                            raise ProtocolError("stale job after verification")
+                        self.journal.record(
+                            job=job, nonce=params["nonce"].lower(), session=connection,
+                            digest=computed[0].hex(), difficulty=template.difficulty,
+                            blob_sha256=hashlib.sha256(template.blockhashing_blob).hexdigest(),
+                            seed=template.seed_hash.hex())
                         await self.send(writer, request_id, {
                             "status": "POW_THRESHOLD_MET_UNCREDITED",
-                            "synthetic": True, "credited": False})
-                except (ProtocolError, VerificationError, SharePreflightError) as error:
+                            "synthetic": True, "credited": False, "recorded": True})
+                except (ProtocolError, VerificationError, SharePreflightError, JournalError) as error:
                     await self.send(writer, request_id,
                                     error={"code": -1, "message": str(error)})
         except (OSError, ValueError, asyncio.TimeoutError):
@@ -159,14 +169,20 @@ class SyntheticListener:
 async def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--executable", type=Path, required=True)
+    parser.add_argument("--journal", type=Path, required=True,
+                        help="synthetic evidence database in a private research directory")
     args = parser.parse_args()
-    listener = SyntheticListener(NativeRandomXAdapter(args.executable, timeout=10))
-    port = await listener.start()
-    print(f"SYNTHETIC ONLY: 127.0.0.1:{port}; no credits, chain or payouts", flush=True)
+    journal = SyntheticJournal(args.journal)
+    listener = None
     try:
+        listener = SyntheticListener(NativeRandomXAdapter(args.executable, timeout=10), journal)
+        port = await listener.start()
+        print(f"SYNTHETIC ONLY: 127.0.0.1:{port}; no credits, chain or payouts", flush=True)
         await asyncio.Event().wait()
     finally:
-        await listener.close()
+        if listener is not None:
+            await listener.close()
+        journal.close()
 
 
 if __name__ == "__main__":

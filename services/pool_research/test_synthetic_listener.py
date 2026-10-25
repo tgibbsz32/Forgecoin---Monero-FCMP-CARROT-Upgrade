@@ -6,9 +6,13 @@ import asyncio
 import json
 import os
 import threading
+import tempfile
+import time
+from pathlib import Path
 import unittest
 from .native_randomx_adapter import NativeRandomXAdapter
 from .synthetic_listener import SyntheticListener
+from .synthetic_journal import SyntheticJournal
 
 
 class ListenerTests(unittest.IsolatedAsyncioTestCase):
@@ -20,7 +24,10 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
             self.calls += 1
             return self.native(seed, blob) if self.native else b"\x42" * 32
         self.verifier = verifier
-        self.listener = SyntheticListener(verifier)
+        self.temp = tempfile.TemporaryDirectory()
+        self.db_path = Path(self.temp.name) / "synthetic.sqlite"
+        self.journal = SyntheticJournal(self.db_path)
+        self.listener = SyntheticListener(verifier, self.journal)
         self.port = await self.listener.start()
         self.clients = []
 
@@ -28,6 +35,8 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
         for _, writer in self.clients:
             writer.close()
         await self.listener.close()
+        self.journal.close()
+        self.temp.cleanup()
 
     async def client(self):
         pair = await asyncio.open_connection("127.0.0.1", self.port)
@@ -61,6 +70,8 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
         response = await self.request(pair, 2, "submit", params)
         self.assertEqual(response["result"]["status"], "POW_THRESHOLD_MET_UNCREDITED")
         self.assertFalse(response["result"]["credited"])
+        self.assertTrue(response["result"]["recorded"])
+        self.assertEqual(self.journal.count(), 1)
         self.assertEqual(self.calls, 1)
         duplicate = await self.request(pair, 3, "submit", params)
         self.assertIn("duplicate", duplicate["error"]["message"])
@@ -163,6 +174,60 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
         self.listener.verifier = original
         response = await self.request(second, 3, "submit", b_params)
         self.assertIsNone(response["error"])
+
+    async def test_restart_preserves_records_but_not_live_jobs(self):
+        pair = await self.client()
+        old = await self.login(pair)
+        old_params = await self.submission(old)
+        self.assertIsNone((await self.request(pair, 2, "submit", old_params))["error"])
+        await self.listener.close()
+        self.journal.close()
+        self.journal = SyntheticJournal(self.db_path)
+        self.listener = SyntheticListener(self.verifier, self.journal)
+        self.port = await self.listener.start()
+        self.assertEqual(self.journal.count(), 1)
+        pair = await self.client()
+        current = await self.login(pair)
+        old_params["id"] = current["id"]
+        rejected = await self.request(pair, 2, "submit", old_params)
+        self.assertIsNotNone(rejected["error"])
+        self.assertEqual(self.calls, 1)
+        params = await self.submission(current)
+        self.assertIsNone((await self.request(pair, 3, "submit", params))["error"])
+        self.assertEqual(self.journal.count(), 2)
+
+    async def test_storage_failure_and_capacity_never_report_success(self):
+        pair = await self.client()
+        login = await self.login(pair)
+        self.journal.db.execute("PRAGMA query_only=ON")
+        response = await self.request(pair, 2, "submit", await self.submission(login))
+        self.assertIsNotNone(response["error"])
+        self.assertIsNone(response["result"])
+        self.assertEqual(self.journal.count(), 0)
+        self.journal.db.execute("PRAGMA query_only=OFF")
+        self.journal.max_records = 1
+        response = await self.request(pair, 3, "submit", await self.submission(login, "05060708"))
+        self.assertTrue(response["result"]["recorded"])
+        response = await self.request(pair, 4, "submit", await self.submission(login, "090a0b0c"))
+        self.assertIsNotNone(response["error"])
+        self.assertEqual(self.journal.count(), 1)
+
+    async def test_expiry_during_native_work_never_records(self):
+        pair = await self.client()
+        started = time.monotonic()
+        login = await self.login(pair)
+        params = await self.submission(login)
+        original = self.listener.verifier
+        def slow(seed, blob):
+            time.sleep(0.06)
+            return original(seed, blob)
+        self.listener.verifier = slow
+        # Client-side native digest calculation also takes time. Leave a small
+        # margin at submission so expiry happens inside the server verifier.
+        self.listener.job_ttl = time.monotonic() - started + 0.05
+        response = await self.request(pair, 2, "submit", params)
+        self.assertIn("stale job after verification", response["error"]["message"])
+        self.assertEqual(self.journal.count(), 0)
 
 
 if __name__ == "__main__":

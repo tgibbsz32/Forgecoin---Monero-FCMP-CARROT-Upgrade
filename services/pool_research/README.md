@@ -20,7 +20,7 @@ default (maximum eight), one native verification at a time with immediate busy
 rejection, 4096-byte frames, 32 requests per connection (maximum 64), ten-second
 idle timeout and sixty-second job lifetime. These are test controls, not proven
 public DoS isolation or 100-worker throughput. Login strings are not authenticated
-identities. State is in memory and is not durable share accounting. The native
+identities. Live job/session state is in memory and is not durable share accounting. The native
 adapter is a subprocess per hash; unsuitable for production throughput.
 
 ```sh
@@ -29,7 +29,7 @@ python -m unittest services.pool_research.test_synthetic_listener -v
 # Same regressions using a separately built trusted reference executable:
 FORGE_SYNTHETIC_NATIVE=/absolute/path/randomx_reference python3 -m unittest services.pool_research.test_synthetic_listener -v
 # Manual loopback research only (Ctrl-C closes it):
-python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_reference
+python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_reference --journal /private/research/checks.sqlite
 ```
 
 Oracle ARM64 native socket tests: eight passed, including busy retry without
@@ -37,6 +37,31 @@ nonce consumption and verifier failure rejection. No listener is installed as
 a service or left running after the tests. Persistent share accounting, live
 miner compatibility, canonical chain jobs, block acceptance and payouts remain
 unverified and disabled.
+
+### Durable synthetic evidence records
+
+The listener now requires a `SyntheticJournal` and commits a successful native
+check before returning `recorded: true`. SQLite records contain job/nonce,
+pseudonymous session token, computed digest, difficulty, hashing-blob SHA256,
+seed and server timestamp. They contain no login strings, passwords, wallet
+addresses or balances. Schema constraints fix `synthetic=1` and `credited=0`.
+Records are evidence of synthetic checks, not miner credits or payout claims.
+
+Transactions use synchronous FULL/DELETE journaling, a 100 ms lock timeout,
+10,000-record maximum and 16,384-page ceiling (64 MiB with the default 4 KiB
+pages). A full, locked, read-only or unavailable journal cannot produce a
+success response. Duplicate identical records are idempotent; conflicting
+records fail. Existing unrelated databases are rejected without modifying them.
+Keep the database in a private research directory; this is not a hostile-path
+defense, tamper-proof audit log or independent attestation.
+
+On restart, prior evidence survives but live sessions/jobs do not: reconnect
+for new synthetic work. A failed write may consume an in-memory nonce; reconnect
+rather than interpreting rejection as lost earnings. A commit can also precede
+a lost client response. No production credit-recovery semantics are claimed.
+Tests cover reopen/idempotence/conflicts, abrupt child-process exit before
+commit, integrity recovery, storage failures, record limits and socket restart.
+Abrupt-process-exit testing is not a hardware power-loss guarantee.
 
 Run offline: `python -m unittest discover -s services/pool_research -p test_model.py -v`.
 
