@@ -1,8 +1,97 @@
 # ForgeCoin pool research: offline accounting model
 
-This directory is a **test-only model**, not a functioning mining pool, Stratum server or payout service. It opens no sockets, cannot validate RandomX shares or block templates, cannot mine, does not access wallet RPC, and cannot pay miners. Never deploy or advertise it as a working pool.
+This directory contains **experimental research**, not a production mining pool or payout service. Most modules are offline models. The explicitly invoked synthetic listener below opens loopback sockets and verifies fixed synthetic work with a supplied native RandomX executable. It has no chain submission, wallet access, rewards or payouts. Never advertise this directory as a working public pool.
 
 The `WorkerRegistry` simulates a 100-active-connection limit by unique connection ID; it is not an HTTP/TCP server and does not enforce a limit on real sockets. `allocate_reward` demonstrates deterministic integer splitting, including a 1% operator fee, of an *assumed eligible* atomic-unit reward based on example share weights. It is not PPLNS, does not determine actual eligible rewards, confirm blocks, account for orphaned blocks, account for payout transaction costs, or provide audit-quality bookkeeping. No policy is implied on minimum payout, rounding, pool-fee basis or confirmation threshold beyond this example.
+
+## Synthetic socket integration (2026-10-25)
+
+`synthetic_listener.py` binds only `127.0.0.1` on an ephemeral port. It uses
+Stratum-shaped login/submit/keepalived messages but deliberately reports
+`SYNTHETIC_ONLY` and `POW_THRESHOLD_MET_UNCREDITED`, never production acceptance.
+Do not point a miner at it: tests submit fixed nonces, not mining searches.
+There is no configurable daemon, wallet, block submission or payout endpoint.
+
+Each connection receives distinct synthetic header bytes, a session token and
+template-bound job. Claimed digests are compared with freshly computed native
+digests. The listener rejects cross-session jobs, digest mismatch, low difficulty,
+duplicates, stale work and malformed messages. Research bounds: four sessions by
+default (maximum eight), one native verification at a time with immediate busy
+rejection, 4096-byte frames, 32 requests per connection (maximum 64), ten-second
+idle timeout and sixty-second job lifetime. These are test controls, not proven
+public DoS isolation or 100-worker throughput. Login strings are not authenticated
+identities. Live job/session state is in memory and is not durable share accounting.
+The default native adapter now keeps a bounded persistent light-mode worker;
+public-pool throughput and isolation are still unverified.
+
+```sh
+# Socket regressions with an explicitly fake verifier:
+python -m unittest services.pool_research.test_synthetic_listener -v
+# Same regressions using a separately built trusted reference executable:
+FORGE_SYNTHETIC_NATIVE=/absolute/path/randomx_reference python3 -m unittest services.pool_research.test_synthetic_listener -v
+# Preferred persistent native protocol:
+FORGE_SYNTHETIC_PERSISTENT=/absolute/path/randomx_worker python3 -m unittest services.pool_research.test_synthetic_listener -v
+# Manual loopback research only (Ctrl-C closes it):
+python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_worker --journal /private/research/checks.sqlite
+```
+
+Oracle ARM64 native socket tests: eight passed, including busy retry without
+nonce consumption and verifier failure rejection. No listener is installed as
+a service or left running after the tests. Persistent share accounting, live
+miner compatibility, canonical chain jobs, block acceptance and payouts remain
+unverified and disabled.
+
+### Durable synthetic evidence records
+
+The listener now requires a `SyntheticJournal` and commits a successful native
+check before returning `recorded: true`. SQLite records contain job/nonce,
+pseudonymous session token, computed digest, difficulty, hashing-blob SHA256,
+seed and server timestamp. They contain no login strings, passwords, wallet
+addresses or balances. Schema constraints fix `synthetic=1` and `credited=0`.
+Records are evidence of synthetic checks, not miner credits or payout claims.
+
+Transactions use synchronous FULL/DELETE journaling, a 100 ms lock timeout,
+10,000-record maximum and 16,384-page ceiling (64 MiB with the default 4 KiB
+pages). A full, locked, read-only or unavailable journal cannot produce a
+success response. Duplicate identical records are idempotent; conflicting
+records fail. Existing unrelated databases are rejected without modifying them.
+Keep the database in a private research directory; this is not a hostile-path
+defense, tamper-proof audit log or independent attestation.
+
+On restart, prior evidence survives but live sessions/jobs do not: reconnect
+for new synthetic work. A failed write may consume an in-memory nonce; reconnect
+rather than interpreting rejection as lost earnings. A commit can also precede
+a lost client response. No production credit-recovery semantics are claimed.
+Tests cover reopen/idempotence/conflicts, abrupt child-process exit before
+commit, integrity recovery, storage failures, record limits and socket restart.
+Abrupt-process-exit testing is not a hardware power-loss guarantee.
+
+### Persistent native worker
+
+`tests/randomx_worker.cpp` implements a bounded tagged stdin/stdout protocol.
+It retains one default-flags RandomX cache/VM for a seed, reinitializes on seed
+changes, and exits after 64 requests. Input lines are bounded before allocation
+can grow beyond 524,400 bytes. There is no JIT/MSR configuration, nonce search,
+network access, daemon or wallet integration. Build explicitly against reviewed
+RandomX headers/library; there is no runtime compiler or automatic download.
+
+`persistent_randomx.py` permits one request at a time, checks response tags and
+digest shape, bounds pipe reads and applies a deadline to both writes and reads.
+Timeouts/malformed output/crashes discard the worker and return failure; requests
+are not silently retried. A later explicit request can start a replacement after
+cleanup. If cleanup fails, the adapter is disabled. Closing waits for outstanding
+work and reaps the helper. A listener nonce reserved before verifier failure may
+remain consumed; reconnect for new synthetic work rather than assuming a retry
+of the same nonce will succeed. The legacy one-shot diagnostic protocol is
+available only through `--one-shot-reference`.
+
+Oracle evidence: 65 fixed-vector requests with recycle, seed/input comparisons
+against the one-shot reference, native malformed-frame refusals, and 23
+worker/journal/socket tests passed. Six worker fault tests use a fake Python
+digest worker to exercise real subprocess failure paths; socket/native-vector
+checks use actual RandomX. This is not an independent implementation comparison,
+production performance certification, OS sandbox, miner compatibility or payout
+acceptance. Process/cache reuse is implemented; no worker-capacity promise follows.
 
 Run offline: `python -m unittest discover -s services/pool_research -p test_model.py -v`.
 

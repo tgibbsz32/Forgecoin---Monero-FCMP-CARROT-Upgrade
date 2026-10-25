@@ -1,4 +1,8 @@
 $ErrorActionPreference = 'Stop'
+$audit = Join-Path $PSScriptRoot '..\..\..\tools\stage_windows_sidecars.py'
+$binaries = Join-Path $PSScriptRoot '..\src-tauri\binaries'
+python $audit --destination $binaries
+if ($LASTEXITCODE -ne 0) { throw 'Sidecar digest review failed' }
 $targetDir = Join-Path $PSScriptRoot '..\src-tauri\target\debug'
 New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
 foreach ($name in @('forged','forge-wallet-rpc')) {
