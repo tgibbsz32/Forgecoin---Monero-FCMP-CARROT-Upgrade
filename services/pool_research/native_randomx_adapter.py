@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 
-_HEX_DIGEST = re.compile(r"[0-9a-f]{64}\n?\Z")
+_HEX_DIGEST = re.compile(r"[0-9a-f]{64}(?:\r?\n)?\Z")
 
 class NativeRandomXError(ValueError):
     pass
