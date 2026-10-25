@@ -20,16 +20,19 @@ default (maximum eight), one native verification at a time with immediate busy
 rejection, 4096-byte frames, 32 requests per connection (maximum 64), ten-second
 idle timeout and sixty-second job lifetime. These are test controls, not proven
 public DoS isolation or 100-worker throughput. Login strings are not authenticated
-identities. Live job/session state is in memory and is not durable share accounting. The native
-adapter is a subprocess per hash; unsuitable for production throughput.
+identities. Live job/session state is in memory and is not durable share accounting.
+The default native adapter now keeps a bounded persistent light-mode worker;
+public-pool throughput and isolation are still unverified.
 
 ```sh
 # Socket regressions with an explicitly fake verifier:
 python -m unittest services.pool_research.test_synthetic_listener -v
 # Same regressions using a separately built trusted reference executable:
 FORGE_SYNTHETIC_NATIVE=/absolute/path/randomx_reference python3 -m unittest services.pool_research.test_synthetic_listener -v
+# Preferred persistent native protocol:
+FORGE_SYNTHETIC_PERSISTENT=/absolute/path/randomx_worker python3 -m unittest services.pool_research.test_synthetic_listener -v
 # Manual loopback research only (Ctrl-C closes it):
-python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_reference --journal /private/research/checks.sqlite
+python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_worker --journal /private/research/checks.sqlite
 ```
 
 Oracle ARM64 native socket tests: eight passed, including busy retry without
@@ -62,6 +65,33 @@ a lost client response. No production credit-recovery semantics are claimed.
 Tests cover reopen/idempotence/conflicts, abrupt child-process exit before
 commit, integrity recovery, storage failures, record limits and socket restart.
 Abrupt-process-exit testing is not a hardware power-loss guarantee.
+
+### Persistent native worker
+
+`tests/randomx_worker.cpp` implements a bounded tagged stdin/stdout protocol.
+It retains one default-flags RandomX cache/VM for a seed, reinitializes on seed
+changes, and exits after 64 requests. Input lines are bounded before allocation
+can grow beyond 524,400 bytes. There is no JIT/MSR configuration, nonce search,
+network access, daemon or wallet integration. Build explicitly against reviewed
+RandomX headers/library; there is no runtime compiler or automatic download.
+
+`persistent_randomx.py` permits one request at a time, checks response tags and
+digest shape, bounds pipe reads and applies a deadline to both writes and reads.
+Timeouts/malformed output/crashes discard the worker and return failure; requests
+are not silently retried. A later explicit request can start a replacement after
+cleanup. If cleanup fails, the adapter is disabled. Closing waits for outstanding
+work and reaps the helper. A listener nonce reserved before verifier failure may
+remain consumed; reconnect for new synthetic work rather than assuming a retry
+of the same nonce will succeed. The legacy one-shot diagnostic protocol is
+available only through `--one-shot-reference`.
+
+Oracle evidence: 65 fixed-vector requests with recycle, seed/input comparisons
+against the one-shot reference, native malformed-frame refusals, and 23
+worker/journal/socket tests passed. Six worker fault tests use a fake Python
+digest worker to exercise real subprocess failure paths; socket/native-vector
+checks use actual RandomX. This is not an independent implementation comparison,
+production performance certification, OS sandbox, miner compatibility or payout
+acceptance. Process/cache reuse is implemented; no worker-capacity promise follows.
 
 Run offline: `python -m unittest discover -s services/pool_research -p test_model.py -v`.
 

@@ -286,3 +286,55 @@ compatibility remain unfinished. Next stage: replace subprocess-per-hash with
 a bounded persistent native verifier and test crash/timeout recovery, retaining
 the synthetic-only boundary. Do not enable new-mainnet or coin-producing work.
 Append subsequent stage evidence and refresh this chat's outputs handoff.
+
+## Stage 5 completed: persistent native verification worker
+
+Added tests/randomx_worker.cpp and persistent_randomx.py. The C++ helper reuses
+one default/light-mode cache and VM per seed, reinitializes on seed changes and
+exits after 64 requests. It accepts only bounded tagged lines, rejects malformed
+or out-of-order input, and never searches nonces or contacts a network/chain.
+Parent adapter validates request/response association, bounds response reads,
+and enforces a write+read deadline through a bounded exchange thread. Only one
+request is permitted at a time. Errors discard/reap the worker, never silently
+retry the failed request; later explicit requests may start a fresh worker.
+Cleanup failure disables the adapter. Windows helpers use CREATE_NO_WINDOW.
+
+Listener CLI now uses this protocol by default. --one-shot-reference explicitly
+selects the old reference protocol for diagnostics. Both require an explicit
+trusted executable and --journal path; no compilation/download happens at runtime.
+The listener still binds only loopback and records synthetic/uncredited evidence
+before success. Journal/session ownership and no-mainnet/no-coins boundaries
+are unchanged. None of this is a production sandbox or verified public capacity.
+
+Oracle compilation (no warnings reported):
+
+```sh
+cd /home/ubuntu/pool-preparation/20261025-native
+g++ -std=c++17 -O2 -Wall -Wextra -I /home/ubuntu/blockchain/forgecoin/external/randomx/src services/pool_research/tests/randomx_worker.cpp /home/ubuntu/blockchain/forgecoin/build/arm64-release/external/randomx/librandomx.a -o randomx_worker
+python3 -m services.pool_research.tests.run_persistent_native_offline --worker ./randomx_worker --reference ./randomx_reference
+FORGE_SYNTHETIC_PERSISTENT=/home/ubuntu/pool-preparation/20261025-native/randomx_worker python3 -W error::ResourceWarning -m unittest services.pool_research.test_persistent_randomx services.pool_research.test_synthetic_journal services.pool_research.test_synthetic_listener -v
+```
+
+- Native executable SHA256: 36026e5222b5a481ecc1897e4618fecef450e27e7ec4dcafc83cd9a975e91a86.
+- Native source SHA256: 9589b5baf932a309cdbb25d77add4f39ba067f81148e646a77046aac70c4b610.
+- Links the same existing development library/header with digests recorded in stage 1.
+- 65 known-vector requests passed; exactly two worker starts verified recycle.
+- Mutated input and seed-switch/back results matched the one-shot reference.
+- Malformed/tag/oversized/partial native input returned refusal with no digest.
+- Diagnostic harness duration 19.549s includes reference work; NOT a throughput benchmark.
+- 23 Oracle worker/journal/socket tests passed in 23.555s; native socket hashes
+  used the actual persistent helper. Fault tests use an explicitly fake Python
+  worker to exercise real crash, timeout/blocked-stdin, wrong-tag, overlong-output,
+  recycle, invalid-input, closed-state and concurrent-call behavior.
+- 41 local worker/journal/socket/protocol/bound-job/adapter tests passed in 12.364s.
+- No generated native executable or database is committed. Helpers are in the
+  private Oracle research directory only; no systemd listener service installed.
+
+Known limits: default interpreted/light-mode synthetic reference work; same
+development RandomX implementation on both sides, not an independent source
+attestation. No public miner/XMRig result, canonical FRG job validation, production
+throughput, durable financial credits, accepted chain blocks or payouts claimed.
+Next: trusted-source XMRig build and controlled synthetic client compatibility,
+then proper per-worker job/difficulty/accounting integration. Such tests must
+remain separated from old/new mainnet and cannot submit blocks or create coins.
+Retain stage handoffs, append actual evidence and refresh the outputs copy.

@@ -20,6 +20,7 @@ from .share_preflight import SharePreflightError
 from .stratum_protocol import MAX_FRAME_BYTES, ProtocolError, SessionTable
 from .template_adapter import validate_template
 from .synthetic_journal import SyntheticJournal, JournalError
+from .persistent_randomx import PersistentRandomXAdapter
 
 SEED = bytes.fromhex("2a91ebe3007fb301072c5b0c8e130c782d1218e4633f6a30e6c2d692b6ac5f05")
 
@@ -171,17 +172,24 @@ async def main():
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--journal", type=Path, required=True,
                         help="synthetic evidence database in a private research directory")
+    parser.add_argument("--one-shot-reference", action="store_true",
+                        help="use legacy reference protocol for diagnostics only")
     args = parser.parse_args()
     journal = SyntheticJournal(args.journal)
     listener = None
+    adapter = None
     try:
-        listener = SyntheticListener(NativeRandomXAdapter(args.executable, timeout=10), journal)
+        adapter_type = NativeRandomXAdapter if args.one_shot_reference else PersistentRandomXAdapter
+        adapter = adapter_type(args.executable, timeout=10)
+        listener = SyntheticListener(adapter, journal)
         port = await listener.start()
         print(f"SYNTHETIC ONLY: 127.0.0.1:{port}; no credits, chain or payouts", flush=True)
         await asyncio.Event().wait()
     finally:
         if listener is not None:
             await listener.close()
+        if isinstance(adapter, PersistentRandomXAdapter):
+            adapter.close()
         journal.close()
 
 

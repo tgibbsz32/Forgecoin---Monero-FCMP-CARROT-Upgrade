@@ -13,12 +13,15 @@ import unittest
 from .native_randomx_adapter import NativeRandomXAdapter
 from .synthetic_listener import SyntheticListener
 from .synthetic_journal import SyntheticJournal
+from .persistent_randomx import PersistentRandomXAdapter
 
 
 class ListenerTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         executable = os.environ.get("FORGE_SYNTHETIC_NATIVE")
-        self.native = NativeRandomXAdapter(executable, timeout=10) if executable else None
+        persistent = os.environ.get("FORGE_SYNTHETIC_PERSISTENT")
+        self.native = (PersistentRandomXAdapter(persistent, timeout=10) if persistent else
+                       NativeRandomXAdapter(executable, timeout=10) if executable else None)
         self.calls = 0
         def verifier(seed, blob):
             self.calls += 1
@@ -35,6 +38,8 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
         for _, writer in self.clients:
             writer.close()
         await self.listener.close()
+        if isinstance(self.native, PersistentRandomXAdapter):
+            self.native.close()
         self.journal.close()
         self.temp.cleanup()
 
