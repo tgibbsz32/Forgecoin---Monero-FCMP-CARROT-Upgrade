@@ -63,7 +63,8 @@ class ListenerTests(unittest.IsolatedAsyncioTestCase):
     async def submission(self, login, nonce="01020304"):
         job = login["job"]
         blob = bytes.fromhex(job["blob"])
-        patched = blob[:35] + bytes.fromhex(nonce) + blob[39:]
+        self.assertEqual(blob[:7], b"\x10\x10\x80\x80\x80\x80\x01")
+        patched = blob[:39] + bytes.fromhex(nonce) + blob[43:]
         digest = await asyncio.to_thread(self.native, bytes.fromhex(job["seed_hash"]), patched) if self.native else b"\x42" * 32
         return {"id": login["id"], "job_id": job["job_id"],
                 "nonce": nonce, "result": digest.hex()}
