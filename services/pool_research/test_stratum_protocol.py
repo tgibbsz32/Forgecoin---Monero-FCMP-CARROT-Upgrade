@@ -33,5 +33,24 @@ class StratumProtocolTests(unittest.TestCase):
         for limit in (0,101,1.0):
             with self.assertRaises(ValueError):SessionTable(limit)
         with self.assertRaises(ProtocolError):parse_request(msg(True,"keepalived",{}))
+    def test_ambiguous_json_objects_are_rejected(self):
+        for frame in (
+            b'{"id":1,"id":2,"method":"login","params":{"login":"test"}}',
+            b'{"id":1,"method":"login","params":{"login":"test","login":"other"}}',
+            b'{"id":1,"method":"login","params":{"login":"test","algo":["rx/0",NaN]}}',
+        ):
+            with self.subTest(frame=frame), self.assertRaises(ProtocolError):
+                parse_request(frame)
+
+    def test_xmrig_capabilities_and_jsonrpc_are_bounded(self):
+        request = {"id": 1, "jsonrpc": "2.0", "method": "login",
+                   "params": {"login": "synthetic", "algo": ["rx/0", "rx/wow"]}}
+        self.assertEqual(parse_request(json.dumps(request).encode())["params"]["algo"][0], "rx/0")
+        for value in ([], ["rx/0"]*65, [True], ["x"*33], ["bad\nname"], "rx/0"):
+            request["params"]["algo"] = value
+            with self.assertRaises(ProtocolError):parse_request(json.dumps(request).encode())
+        request["params"]["algo"] = ["rx/0"]
+        request["jsonrpc"] = "1.0"
+        with self.assertRaises(ProtocolError):parse_request(json.dumps(request).encode())
 
 if __name__=="__main__":unittest.main()

@@ -96,6 +96,10 @@ class SyntheticListener:
                     request_id = request["id"]
                     params = request["params"]
                     if request["method"] == "login":
+                        if "algo" in params and "rx/0" not in params["algo"]:
+                            await self.send(writer, request_id,
+                                            error={"code": -1, "message": "miner does not support rx/0"})
+                            return
                         # Random previous-hash bytes isolate each worker's work.
                         header = b"\x10\x10\x01" + secrets.token_bytes(32) + bytes(4)
                         blob = header + b"\x44" * 32 + b"\x01"
