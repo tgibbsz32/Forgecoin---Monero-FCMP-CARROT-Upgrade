@@ -4,6 +4,7 @@ param([Parameter(Mandatory=$true)][string]$PrivateFixtureDirectory)
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
 $tests = @(
+  @{ Name='native allocation cleanup'; Script='test_nt_allocation_cleanup.ps1'; Args=@('-Directory',$PrivateFixtureDirectory) },
   @{ Name='native ownership fault matrix'; Script='test_nt_native_error_fault_matrix.ps1'; Args=@('-Directory',$PrivateFixtureDirectory) },
   @{ Name='protected file handle ACL'; Script='test_windows_open_file_acl.ps1'; Args=@('-Directory',$PrivateFixtureDirectory) },
   @{ Name='inherited ACL rejection'; Script='test_windows_insecure_acl_rejection.ps1'; Args=@('-Verifier',(Join-Path $here 'test_windows_open_file_acl.ps1')) },
