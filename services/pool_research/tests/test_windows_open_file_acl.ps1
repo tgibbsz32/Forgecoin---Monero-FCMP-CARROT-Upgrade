@@ -29,7 +29,7 @@ try {
   $created=$true
   try {
     # Check security on the opened file HANDLE before writing test bytes.
-    $fileAcl=[System.IO.FileSystemAclExtensions]::GetAccessControl($stream)
+    $fileAcl=$stream.GetAccessControl()
     Assert-Rules $fileAcl
     $bytes=[Text.Encoding]::ASCII.GetBytes("harmless probe")
     $stream.Write($bytes,0,$bytes.Length)
