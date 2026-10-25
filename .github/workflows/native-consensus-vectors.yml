@@ -1,0 +1,33 @@
+name: Native difficulty regression vectors
+on:
+  pull_request:
+    paths:
+      - 'native-frg/src/cryptonote_basic/difficulty.*'
+      - 'native-frg/src/cryptonote_basic/forgecoin_difficulty.h'
+      - 'native-frg/tests/forgecoin/**'
+      - '.github/workflows/native-consensus-vectors.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  difficulty-vectors:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Generate independent vectors outside source
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/frg-vectors"
+          cp native-frg/tests/forgecoin/{make_vectors.py,difficulty_model.py,historical-headers.json} "$RUNNER_TEMP/frg-vectors/"
+          python "$RUNNER_TEMP/frg-vectors/make_vectors.py"
+      - name: Compile and check existing native difficulty (no node or mining)
+        working-directory: native-frg
+        shell: bash
+        run: |
+          g++ -std=c++17 -O2 -I src -I contrib/epee/include -I external/easylogging++ \
+            tests/forgecoin/lwma-consensus-test.cpp src/cryptonote_basic/difficulty.cpp \
+            -o "$RUNNER_TEMP/frg-vectors/lwma-consensus-test"
+          "$RUNNER_TEMP/frg-vectors/lwma-consensus-test" "$RUNNER_TEMP/frg-vectors/lwma-vectors.txt"
