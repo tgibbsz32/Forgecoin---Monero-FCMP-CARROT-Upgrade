@@ -12,7 +12,8 @@ try {
     @{SID=(New-Object Security.Principal.SecurityIdentifier 'S-1-5-18');Rights=[Security.AccessControl.FileSystemRights]::FullControl},
     @{SID=(New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-544');Rights=[Security.AccessControl.FileSystemRights]::ReadAndExecute}
   )) {
-    $rule=New-Object Security.AccessControl.FileSystemAccessRule($entry.SID,$entry.Rights,[Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [Security.AccessControl.InheritanceFlags]::ObjectInherit,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)
+    $flags=[Security.AccessControl.InheritanceFlags]([int][Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [int][Security.AccessControl.InheritanceFlags]::ObjectInherit)
+    $rule=New-Object Security.AccessControl.FileSystemAccessRule($entry.SID,$entry.Rights,$flags,[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)
     $acl.AddAccessRule($rule)
   }
   [IO.Directory]::SetAccessControl($root,$acl)
