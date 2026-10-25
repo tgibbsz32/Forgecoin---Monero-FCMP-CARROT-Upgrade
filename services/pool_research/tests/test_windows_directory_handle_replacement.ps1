@@ -28,7 +28,7 @@ $moved=Join-Path $root "relocated"
 [IO.Directory]::CreateDirectory($old) | Out-Null
 $handle=$null
 try {
-  $handle=[DirectoryIdentityProbe]::CreateFileW($old,0x80000000,7,[IntPtr]::Zero,3,
+  $handle=[DirectoryIdentityProbe]::CreateFileW($old,[uint32]2147483648,7,[IntPtr]::Zero,3,
       (0x02000000 -bor 0x00200000),[IntPtr]::Zero)
   if ($handle.IsInvalid) {throw "Cannot open test directory handle"}
   $before=[DirectoryIdentityProbe]::FinalPath($handle)
