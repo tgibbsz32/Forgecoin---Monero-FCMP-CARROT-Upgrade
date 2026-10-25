@@ -105,3 +105,13 @@ SHA-256: `600a76d02fbf9f46825ca989daf1c74187aa3bf524d651c35cfe6fbbc1fd2836`.
 The hardened PE preflight identifies this daemon as structurally valid, with the explicit note that provenance is not independently verified. The command still exits without acceptance when the desktop, wallet-RPC, and XMRig candidates are absent. Preflight unit tests: **4 passed** when invoked from the repository root with `py -m unittest tools.test_preflight_desktop_mining -v`.
 
 **Gates still blocked:** This MinGW-built executable is not yet a verified Tauri `x86_64-pc-windows-msvc` sidecar package; wallet-RPC and XMRig candidates remain unverified; no controlled egress sandbox has been established; the current mock pool acknowledges shares without validating native RandomX; neither Solo nor Pool integration, chain block acceptance, mature rewards, or payouts have been tested. Do not use this evidence as release approval. Do not commit the `build-disposable/` directory or generated executables.
+
+## Source-matched wallet RPC build follow-up
+
+Using the already configured disposable MinGW build with `ARCH_ID=x86_64`, `cmake --build build-disposable --target wallet_rpc_server --parallel 2` completed with exit code **0** and `[100%] Built target wallet_rpc_server`. No wallet process was started and no RPC was exposed.
+
+The resulting `build-disposable/bin/forge-wallet-rpc.exe` is **34,279,313 bytes** with SHA-256 `34a3f72add57fb96beb3a822d28c910e1e6eadb2f6acfdee01a1a901de7b12e0`. Source checkout HEAD is `0f3a9a2820a6285838fb45227a34c65957615e38`; independently attested reproducibility remains outstanding. The existing `forged.exe` hash remains `600a76d02fbf9f46825ca989daf1c74187aa3bf524d651c35cfe6fbbc1fd2836`.
+
+Running the hardened read-only preflight with both native binaries reports `FOUND` for daemon and wallet RPC, while desktop and XMRig remain `BLOCKED`, ending with exit code **1** and `NOT VALIDATED`. Structural PE checks do not verify runtime dependencies, address/chain correctness, signatures, or provenance.
+
+**Packaging is still blocked:** Tauri expects `binaries/forged-x86_64-pc-windows-msvc.exe` and `binaries/forge-wallet-rpc-x86_64-pc-windows-msvc.exe`. The current artifacts are MinGW-built, not verified MSVC-target sidecars. Do not simply rename these artifacts to claim MSVC build provenance; audit compatibility and runtime dependency packaging first. No XMRig executable, network-isolated true share verifier, Solo/Pool mining, mature reward, or payout acceptance has been verified.
