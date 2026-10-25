@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ def fixture():
         "wallet_address":"DO_NOT_PERSIST","private_note":"DO_NOT_PERSIST"}}
 
 class PrivateCaptureTests(unittest.TestCase):
+    @unittest.skipIf(os.name == 'nt', 'Windows ACL enforcement pending')
     def test_roundtrip_without_extraneous_fields(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/"template.json"
@@ -28,18 +30,28 @@ class PrivateCaptureTests(unittest.TestCase):
             t=validate_template(result)
             self.assertEqual(t.height,1)
             self.assertEqual(metadata["hashing_blob_size"],73)
+    @unittest.skipIf(os.name == 'nt', 'Windows ACL enforcement pending')
     def test_refuse_overwrite(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/"template.json"
             p.write_text("existing")
             with self.assertRaises(FileExistsError):persist_private_capture(fixture(),p)
             self.assertEqual(p.read_text(),"existing")
+    @unittest.skipIf(os.name == 'nt', 'Windows ACL enforcement pending')
     def test_reject_invalid_before_write(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/"template.json"
             invalid=fixture()
             del invalid["result"]["blockhashing_blob"]
             with self.assertRaises(ValueError):persist_private_capture(invalid,p)
+            self.assertFalse(p.exists())
+
+    @unittest.skipUnless(os.name == "nt", "Windows-only fail-closed test")
+    def test_windows_refuses_private_capture(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/"template.json"
+            with self.assertRaises(PermissionError):
+                persist_private_capture(fixture(),p)
             self.assertFalse(p.exists())
 
 if __name__=="__main__":unittest.main()
