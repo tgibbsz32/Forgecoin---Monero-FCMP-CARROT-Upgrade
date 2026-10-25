@@ -181,3 +181,47 @@ Trusted XMRig source build remains needed for later controlled client integratio
 do not use the unverified download scripts. Actual coin-producing tests and new
 mainnet launch remain outside current authorization. Append the next stage result
 here, refresh the user-facing outputs handoff and push the review branch.
+
+## Stage 3 completed: loopback native-verifying synthetic listener
+
+Implemented services/pool_research/synthetic_listener.py and socket integration
+tests. The listener binds ONLY 127.0.0.1 on an ephemeral port, serves distinct
+synthetic work/session tokens per connection, and uses BoundJobVerifier plus
+NativeRandomXAdapter. It compares miner-claimed digests against its own native
+hash. A successful synthetic check is explicitly uncredited, never status OK
+or a claimed accepted block. It has no chain/node/wallet/submission endpoints,
+never searches nonces, and is NOT a miner-facing production pool.
+
+Bounds: four default sessions (max eight), one verifier call at a time with
+immediate busy rejection and no queued nonce consumption, 4096-byte frames,
+32 requests per connection (max64), 10-second idle timeout, 60-second job TTL.
+Login strings are unauthenticated labels. Session/job state is memory-only.
+Subprocess-per-hash verification is for integration evidence, not throughput.
+
+Tests: eight local socket tests with explicitly fake digest callbacks passed;
+the same eight tests on Oracle ARM64 with the real native reference executable
+passed in 16.151 seconds. They cover threshold success/uncredited, duplicate,
+digest mismatch, cross-worker/session/job isolation, stale/malformed work,
+low difficulty, verifier failure, capacity/idle cleanup, oversized frames,
+request limits, login ordering, duplicate request IDs and busy retry without
+nonce consumption. Eighteen existing protocol/bound-job/adapter tests passed.
+
+Remote source lives under /home/ubuntu/pool-preparation/20261025-native/services/
+pool_research. Tests create/close listeners within their process. No systemd
+service was installed and no pool listener remains running. No public ingress,
+daemon configuration, mainnet staging or payout settings were changed.
+This is native hash verification over real loopback sockets with SYNTHETIC jobs,
+not an XMRig compatibility result, real FRG block-template validation, public
+Stratum acceptance, restart-safe credits, payout proof or production load result.
+
+Reproduce native socket checks on Oracle from the stage-1 work directory:
+
+```sh
+FORGE_SYNTHETIC_NATIVE=/home/ubuntu/pool-preparation/20261025-native/randomx_reference python3 -m unittest services.pool_research.test_synthetic_listener -v
+```
+
+Next: add bounded durable synthetic-verification records/restart checks without
+balances or spending authority, then a reviewed persistent native verifier and
+trusted-source client compatibility harness. Keep the new-mainnet no-launch and
+no-premine boundaries. Website continues to say share verification is in
+development, which is accurate: full pool/client/accounting integration is absent.

@@ -1,8 +1,42 @@
 # ForgeCoin pool research: offline accounting model
 
-This directory is a **test-only model**, not a functioning mining pool, Stratum server or payout service. It opens no sockets, cannot validate RandomX shares or block templates, cannot mine, does not access wallet RPC, and cannot pay miners. Never deploy or advertise it as a working pool.
+This directory contains **experimental research**, not a production mining pool or payout service. Most modules are offline models. The explicitly invoked synthetic listener below opens loopback sockets and verifies fixed synthetic work with a supplied native RandomX executable. It has no chain submission, wallet access, rewards or payouts. Never advertise this directory as a working public pool.
 
 The `WorkerRegistry` simulates a 100-active-connection limit by unique connection ID; it is not an HTTP/TCP server and does not enforce a limit on real sockets. `allocate_reward` demonstrates deterministic integer splitting, including a 1% operator fee, of an *assumed eligible* atomic-unit reward based on example share weights. It is not PPLNS, does not determine actual eligible rewards, confirm blocks, account for orphaned blocks, account for payout transaction costs, or provide audit-quality bookkeeping. No policy is implied on minimum payout, rounding, pool-fee basis or confirmation threshold beyond this example.
+
+## Synthetic socket integration (2026-10-25)
+
+`synthetic_listener.py` binds only `127.0.0.1` on an ephemeral port. It uses
+Stratum-shaped login/submit/keepalived messages but deliberately reports
+`SYNTHETIC_ONLY` and `POW_THRESHOLD_MET_UNCREDITED`, never production acceptance.
+Do not point a miner at it: tests submit fixed nonces, not mining searches.
+There is no configurable daemon, wallet, block submission or payout endpoint.
+
+Each connection receives distinct synthetic header bytes, a session token and
+template-bound job. Claimed digests are compared with freshly computed native
+digests. The listener rejects cross-session jobs, digest mismatch, low difficulty,
+duplicates, stale work and malformed messages. Research bounds: four sessions by
+default (maximum eight), one native verification at a time with immediate busy
+rejection, 4096-byte frames, 32 requests per connection (maximum 64), ten-second
+idle timeout and sixty-second job lifetime. These are test controls, not proven
+public DoS isolation or 100-worker throughput. Login strings are not authenticated
+identities. State is in memory and is not durable share accounting. The native
+adapter is a subprocess per hash; unsuitable for production throughput.
+
+```sh
+# Socket regressions with an explicitly fake verifier:
+python -m unittest services.pool_research.test_synthetic_listener -v
+# Same regressions using a separately built trusted reference executable:
+FORGE_SYNTHETIC_NATIVE=/absolute/path/randomx_reference python3 -m unittest services.pool_research.test_synthetic_listener -v
+# Manual loopback research only (Ctrl-C closes it):
+python3 -m services.pool_research.synthetic_listener --executable /absolute/path/randomx_reference
+```
+
+Oracle ARM64 native socket tests: eight passed, including busy retry without
+nonce consumption and verifier failure rejection. No listener is installed as
+a service or left running after the tests. Persistent share accounting, live
+miner compatibility, canonical chain jobs, block acceptance and payouts remain
+unverified and disabled.
 
 Run offline: `python -m unittest discover -s services/pool_research -p test_model.py -v`.
 
