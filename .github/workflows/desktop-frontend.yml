@@ -1,0 +1,25 @@
+name: Desktop frontend build
+on:
+  pull_request:
+    paths:
+      - 'native-frg/apps/desktop-tauri/package*.json'
+      - 'native-frg/apps/desktop-tauri/src/**'
+      - 'native-frg/apps/desktop-tauri/tsconfig*.json'
+      - '.github/workflows/desktop-frontend.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: native-frg/apps/desktop-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run build
