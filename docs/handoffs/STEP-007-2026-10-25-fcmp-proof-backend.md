@@ -1,0 +1,17 @@
+# STEP-007 — 2026-10-25 — actual FCMP++ proof backend port
+
+Completed implementation: d7fbffd2d957f959533ad0e498cf5e25a6813a03. Isolated worktree work/fcmp-protocol-port, branch codex/fcmp-carrot-native-port-20261025, exclusive new repository only. This handoff is committed after completed implementation to reference its exact SHA.
+
+Actual files: native-frg/src/fcmp_pp/fcmp_pp_rust/{Cargo.toml,Cargo.lock,CMakeLists.txt,fcmp++.h,src/lib.rs}; new src/backend_tests.rs and retained MIT LICENSE-monero-oxide; native-frg/cmake/ForgeFcmpBackend.cmake; CMakeLists.txt includes that opt-in backend target; native-frg/tests/fcmp_port/backend_ffi.c; docs/FCMP_BACKEND_PORT.md; .github/workflows/fcmp-backend.yml. Pinned backend from Monero beta d80596ad18110390b6ca97a77e29aba36f4644c9; full membership fixture adapted from MIT monero-oxide 31c26d96eaadbba910ffe3613ad8b4cf9c598a93, with author/license retained. See port document for exact attribution and dependency pins.
+
+Commands/results: rustup target add x86_64-pc-windows-gnu; cargo build --locked --manifest-path native-frg/src/fcmp_pp/fcmp_pp_rust/Cargo.toml --target x86_64-pc-windows-gnu -j 2 — actual static backend compiled. Configured isolated CMake with -DMANUAL_SUBMODULES=1 -DBUILD_TESTS=OFF -DFORGE_BUILD_FCMP_BACKEND=ON and external FORGE_FCMP_CARGO_TARGET_DIR. cmake --build ../fcmp-port-build --target forge_fcmp_backend_ffi --parallel 2 passed. ctest --test-dir ../fcmp-port-build -R '^forge_fcmp_backend_ffi$' --output-on-failure passed (3.07 seconds on repeat).
+
+C ABI checks: generated real SAL proof, verified valid proof and expected key image, rejected changed message/proof/key image and incorrect opening; generator roundtrips and noncanonical scalar rejection passed. First C test compile used incorrect pointer casts; corrected to the upstream typed ABI and rebuilt successfully.
+
+cargo test --locked --manifest-path .../Cargo.toml --target x86_64-pc-windows-gnu --lib -j 2 passed: full single-input/single-layer membership + SAL proof generation, serialization, FFI parsing and verification. Also rejected changed transaction message, wrong curve-tree root and malformed same-length proof. Last run: 1 test passed in 7.82 seconds. Initial adapted fixture referenced upstream crate::sal; corrected imports for the FFI crate. git diff --check passed. Remote backend CI pending when this handoff was written.
+
+Exact limit: actual proof code now builds/tests, but is not linked into daemon transaction acceptance, persistent tree state or CARROT wallet code. Network-wide FCMP++/CARROT remains incomplete. No marker-presence result can claim otherwise. Build option defaults OFF and does not authorize activation. Existing FRG config, economics, fork schedule and protected local consensus drafts unchanged.
+
+Separate baseline native build reached daemon linking but reported unresolved RandomX JIT symbols; overall build result still pending while other work completes. Likely architecture selection needs explicit ARCH_ID=x86_64 rather than detected AMD64. Record the completed diagnosis/fix in STEP-008; no release binary claim.
+
+Next actual protocol work: native C++ FFI/proof types and bounds validation, transaction/block serialization and persistent tree append/reorg, Forge-specific v17-v19 mapping, validation/mempool/P2P/RPC, and CARROT shared primitives/scanning/signing/restore/wallet RPC. Preserve historical verification. No production launch/merge/mining/funds operations and no Solana implementation.
