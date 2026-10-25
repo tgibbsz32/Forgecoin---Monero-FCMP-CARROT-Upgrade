@@ -59,7 +59,7 @@ public static class NtRootProbe {
       if(seen.Count!=3) throw new InvalidOperationException("Missing parent principal");
     } finally {LocalFree(sd);}
   }
-  public static string Run(string directory,string fault) {
+  public static void Run(string directory,string fault) {
     using(var parent=CreateFileW(directory,0x80000000,7,IntPtr.Zero,3,
       0x02000000 | 0x00200000, IntPtr.Zero)) {
       if(parent.IsInvalid) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
