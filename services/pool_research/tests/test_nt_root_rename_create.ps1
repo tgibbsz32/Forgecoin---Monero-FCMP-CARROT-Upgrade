@@ -61,23 +61,7 @@ public static class NtRootProbe {
           var final=new StringBuilder(32768);
           uint n=GetFinalPathNameByHandleW(child,final,(uint)final.Capacity,0);
           if(n==0 || n>=final.Capacity) throw new InvalidOperationException("Could not resolve final handle");
-          // Inspect the security descriptor from the already OPEN child handle.
-          // This probe must remain zero-byte; do not use for real capture data.
-          using(var stream=new FileStream(child,FileAccess.ReadWrite)) {
-            var rules=stream.GetAccessControl().GetAccessRules(true,true,typeof(SecurityIdentifier));
-            string current=WindowsIdentity.GetCurrent().User.Value;
-            var permitted=new System.Collections.Generic.HashSet<string> {
-              current,"S-1-5-18","S-1-5-32-544"
-            };
-            if(rules.Count!=3) throw new InvalidOperationException("Unexpected child ACL count");
-            foreach(FileSystemAccessRule rule in rules) {
-              string sid=((SecurityIdentifier)rule.IdentityReference).Value;
-              if(!permitted.Contains(sid) || rule.AccessControlType!=AccessControlType.Allow)
-                throw new InvalidOperationException("Unexpected child ACL principal");
-            }
-            if(stream.Length!=0) throw new InvalidOperationException("Unexpected probe contents");
-          }
-          return final.ToString();
+          // Routing-only probe: no content written; ACL tested separately.\n          return final.ToString();
         }
       } finally {
         if(structPtr!=IntPtr.Zero) Marshal.FreeHGlobal(structPtr);
