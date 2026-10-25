@@ -4,7 +4,7 @@
 
 ## 1. Goal and claims
 
-ForgeCoin (FRG) is intended to remain an independent Monero-derived, RandomX proof-of-work L1 with native confidential transfers. The new development target is to adopt **FCMP++ full-chain membership proofs** with the compatible **CARROT wallet/address system**, then research a *separately secured* bridge and privately matched block-trading facility for Solana and potentially other supported assets.
+ForgeCoin (FRG) is intended to remain an independent Monero-derived, RandomX proof-of-work L1 with native confidential transfers. The new development target is to adopt **FCMP++ full-chain membership proofs** with the compatible **CARROT wallet/address system**, then build **native FRG ↔ Solana** swap capabilities, beginning with original-program SPL **USDC** and native **SOL**, plus a separately governed privately matched block-trading facility. Ethereum/ERC-20 is not in this implementation plan.
 
 Required public language: FCMP++ hides which **eligible historical output** is spent within a much larger set; it does **not** assert the chain publicly knows which outputs remain unspent, guarantee absolute anonymity, or automatically hide metadata exposed by relayers, exchange accounts, RPC infrastructure, counterparties or transparent chains.
 
@@ -35,14 +35,22 @@ Required public language: FCMP++ hides which **eligible historical output** is s
 
 **Important:** TSS/MPC bridge plans must not be merged into native block validity or used to bypass FCMP++ release evidence. A hardfork must require explicit authorization and community upgrade procedure.
 
-## 4. Future cross-chain private block-trading system (separate workstream)
+## 4. Native ForgeCoin ↔ Solana atomic swaps and optional private block-trading venue
+
+**Execution-chain decision:** Solana replaces Ethereum/EVM. All new direct-swap contracts must be **Solana programs** (PDA-controlled lamports/SPL token accounts, Curve25519 compatibility reviewed for CARROT). SOL and **Solana USDC (original SPL Token Program)** are the initial settlement assets; confirm mint and decimal precision on the selected network. No Ethereum/ERC-20 implementation is authorized by this research plan.
+
+**Trust-model separation:** A real user-to-user scriptless atomic swap should not require a TSS custodian; a separate TSS/MPC-secured order venue introduces signer-quorum custody risk and is **not fully trustless**. Native FRG scriptless claims require a proven FCMP++/CARROT-compatible shared-key construction, an audited Solana claim/refund escrow program, cryptographically checked revealed scalar/public point relation, and adversarial two-timelock safety tests. SOL and SPL have distinct custody/transfer paths; neither is deployed. Offline state-machine tests are **not** atomic swaps.
+
+**Research reference:** [SutureCash/core](https://github.com/SutureCash/core) prototypes unaudited pre-launch Monero↔Solana swaps; its SOL implementation and GPL-3.0-or-later source do **not** prove original SPL USDC or ForgeCoin FCMP++/CARROT compatibility.
+
+### 4.1 The separate confidential-trading venue
 
 **Goal:** enable legitimately authorized parties to express sizeable orders without broadcasting their intent in advance, while preserving accurate financial ledgers, fair settlement and applicable financial compliance.
 
 ### 4.1 Components
 
 1. **Native FRG escrow or verified reserve custody:** detect incoming confidential FRG using isolated wallet/RPC tooling, require source-network confirmations, and record liabilities without publishing customers' native wallet histories. A private view key alone is NOT proof of unspent reserves.
-2. **Threshold-controlled vaults:** investigate TSS/MPC on Solana/EVM assets with independent signers, key rotation, quorum, pause/recovery, and public proof of authority constraints. Threshold signatures reduce a single-key failure but are **not automatically trustless** or decentralized.
+2. **Threshold-controlled vaults:** investigate TSS/MPC on Solana-native SOL and verified original-program SPL tokens with independent signers, key rotation, quorum, pause/recovery, and public proof of authority constraints. Threshold signatures reduce a single-key failure but are **not automatically trustless** or decentralized.
 3. **Authenticated relayer transport:** private order submission to reduce information exposure; blind credentials or zero-knowledge claims may be investigated to decouple public identifiers. Relayers must not be trusted to mint or double-execute without verification.
 4. **Private matching:** confidential/RFQ or batch auction design with independently verifiable order ownership and price/quantity conservation, counterparties' fairness and transparent execution terms. Avoid advertising a public DEX fill as hidden if its final trade is visible.
 5. **Settlement and withdrawal:** both assets must change ownership under enforceable atomic/escrow conditions; cross-chain settlement cannot be called instant solely because Solana's on-chain leg is fast. Native FRG confirmations and release risk remain.
@@ -50,7 +58,7 @@ Required public language: FCMP++ hides which **eligible historical output** is s
 
 ### 4.2 Supported pairs and liquidity
 
-- Research SOL and **USDC** first using funded test balances and explicit liquidity quotes; expand to ETH/EVM assets only after verifying smart-contract and chain-specific risks.
+- Research Solana-native SOL and **Solana USDC** first using funded test balances and explicit liquidity quotes. Expand only to reviewed Solana SPL assets after verifying each mint, token-program ownership, decimal precision, transfer restrictions, liquidity and escrow compatibility.
 - A 1:1 redeemable `wFRG` token requires **1:1 verifiable native FRG backing** and burned/escrowed supply on redemption. A future `wFRG` bridge mint must not assume that the unrelated 55M SPL allocation is collateral.
 - **55M standard SPL-token planning allocation:** 4M sale, 1M participation rewards, 50M reserved future issuance/utility. This is a separately governed economic design unless and until the issuer specifies legally and technically enforceable FRG redemption rights. Neither project is deployed to Solana mainnet.
 - Pool **1% optional service fee**, native **FRG treasury receipts**, prospective SPL sale proceeds, bridge reserves and bridge routing fees are separate books. A basis-point **bridge fee remains unspecified** until independently approved, disclosed and assessed.
@@ -59,7 +67,7 @@ Required public language: FCMP++ hides which **eligible historical output** is s
 ### 4.3 Claims and constraints
 
 - **Confidential source funds** does not imply invisible Solana settlement: public SPL ownership, token account changes, trade size, routing or counterparty activity can leak data.
-- Solana has no Ethereum-style public mempool, but information exposure to leaders/builders and post-settlement MEV exists. Use realistic privacy and price-execution threat models.
+- Solana has no globally shared public mempool, but information exposure to leaders/builders and post-settlement MEV exists. Use realistic privacy and price-execution threat models.
 - TSS/MPC custody is one potential trust model, not a cryptographic proof of reserve or safety. Cross-chain 'trustless atomic swap' requires a specific formally analyzed protocol and refunds/timeouts, not simply adding a vault.
 - Privacy functions must coexist with legitimate lawful-order processing, sanctions controls and applicable customer-identification/AML obligations. The protocol is **not designed as an offshore evasion or sanctions-bypass service**.
 - The 2025 GENIUS Act imposes requirements on covered payment stablecoin issuers; no legal exemption or risk-free synthetic issuance is inferred from use of a private L1. Seek qualified financial regulatory review **before** a sale, paid custody, stablecoin or exchange service.
@@ -71,8 +79,8 @@ Required public language: FCMP++ hides which **eligible historical output** is s
 | P0 — Source + protocol review | Full upstream FCMP++ beta v3.1 source integration matrix and version mapping | No patch to live consensus; explicit reproducible reference and unresolved genesis handling |
 | P1 — Native FCMP++ integration | C++/Rust/CARROT and DB in isolated candidate, format/consensus tests | Proof/mempool/chain validity must pass without inflation, reorg or historical-sync failures |
 | P2 — Cross-platform stress | Two-node/three-platform sync, wallets, mining, full reorg/pruning and resource benchmark | Independent code and cryptographic review; explicit mainnet fork and launch authorization |
-| P3 — Simulated cross-chain exchange | Real-number ledger model, private order simulation, TSS threat model, fake data clearly marked | No real collateral, swap, Solana issuance, paid orders or tokens moved |
-| P4 — Devnet private trading prototype | Controlled vaults, verified redemption, privacy measurements, fairness and failure tests | Red-team linkage + security audit, custody/issuer/regulatory review, explicit public deployment decision |
+| P3 — Solana-side offline prototype | Native SOL/original-program SPL swap state model, claim/refund timings, private RFQ simulation, fee accounting, TSS threat model | No Solana program deployed, real TSS signatures, collateral, token issuance, paid orders or funds moved |
+| P4 — Solana localnet/devnet proof | Real program-owned SOL/SPL escrow, verified scalar/public-point checks, cross-chain FRG/CARROT claim/refund and separately tested threshold vault/private RFQ | Independently test atomicity, timeout/failure recovery, linkage/privacy, custody/issuer/regulatory review before any deployment decision |
 
 ## 6. Security invariants / tests
 
