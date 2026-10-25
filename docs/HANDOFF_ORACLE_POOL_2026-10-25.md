@@ -80,3 +80,37 @@ must not be described as actual accepted chain blocks or credited rewards.
    Keep daemon block submission and payout connections absent/disabled.
 4. Retire the old network only after dependency review and verified backup.
 5. New-mainnet launch and coin-producing tests require separate authorization.
+
+## Stage 1 completed: native ARM64 synthetic-work verification
+
+2026-10-25, Oracle work directory /home/ubuntu/pool-preparation/20261025-native.
+Copied only the offline adapter/bound-job dependencies and native reference
+source/harness; no daemon or wallet was copied or launched. Compiled with g++
+-std=c++17 -O2 against the existing development RandomX header/static library.
+
+- Existing library SHA256: 5826e9ff627150c8565b6b1a2f1696250b23306122e794bc6430a9ba8356f18a.
+- Header SHA256: 3187bf9ce958da3c2333a5dbc281340e5008ddd8a5811356032427a1d6ba845d.
+- Reference source SHA256: d82b7ec64a5617bf16e38239c1aa96b6c2b1b54859b1b786aafccbfe5cab3647.
+- Built reference executable SHA256: 14d500e51085622e44d5b840d727d7964c25d76291b2d6fc5f5c513564322781.
+- compare_randomx_reference: expected vector and input-mutation check passed.
+- Extended run_bound_native_offline: known vector passed; real native digest
+  met difficulty-one threshold as UNcredited work; fixed work failed the maximum
+  difficulty threshold; duplicate, stale, malformed and unknown submissions
+  rejected before hash callback. Existing difficulty-500000 case: LOW_DIFFICULTY.
+- Local adapter/bound-job regressions: 13 tests passed.
+- Post-check daemon mining_status remains active=false, speed=0, threads=0.
+
+Reproduce from that VM work directory:
+
+```sh
+python3 -m services.pool_research.tests.compare_randomx_reference --source-root /home/ubuntu/blockchain/forgecoin --library /home/ubuntu/blockchain/forgecoin/build/arm64-release/external/randomx/librandomx.a
+python3 -m services.pool_research.tests.run_bound_native_offline --executable ./randomx_reference
+```
+
+Scope: synthetic fixed work and existing development library, NOT an independent
+source attestation, live Stratum/miner integration, new-mainnet compatibility,
+accepted chain block, credited share, production throughput, or payout proof.
+No nonce search, chain initialization, block submission, coin creation, new
+service or public listening port. Existing chain and explorer remain unchanged.
+Next: complete/evaluate static pool preparation page, then reversible /pool/
+deployment preserving existing explorer routes, ACME and disabled mining.
