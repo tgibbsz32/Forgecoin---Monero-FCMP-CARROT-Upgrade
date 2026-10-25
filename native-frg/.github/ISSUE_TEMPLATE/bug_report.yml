@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible ForgeCoin problem that is not security sensitive
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose wallet seeds, private keys, passwords, or exploitable security details here. Use SECURITY.md for private reporting.
+  - type: input
+    id: version
+    attributes:
+      label: ForgeCoin version
+      placeholder: Release tag or commit
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Daemon and P2P
+        - Wallet
+        - Desktop application
+        - Mining
+        - Pool mining
+        - Local explorer
+        - Build and packaging
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened
+      description: Include the exact steps, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, CPU architecture, peer mode, and relevant non-sensitive logs.
+    validations:
+      required: true

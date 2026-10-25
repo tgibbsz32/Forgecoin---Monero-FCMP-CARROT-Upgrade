@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>ForgeCoin — Network explorer</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="masthead">
+    <a class="brand" href="#home" aria-label="ForgeCoin explorer home"><span class="mark" aria-hidden="true">F</span><span>ForgeCoin<small>Network explorer</small></span></a>
+    <span class="network"><span aria-hidden="true"></span>Development chain</span>
+  </header>
+  <main id="content" tabindex="-1">
+    <section class="intro">
+      <div><p class="eyebrow">The public ledger</p><h1>Follow the chain.</h1><p class="lede">Explore blocks, transactions, and the work behind ForgeCoin.</p></div>
+      <form id="search" role="search">
+        <label for="query">Find a block or transaction</label>
+        <div class="search-row"><input id="query" name="query" type="search" placeholder="Block height or transaction / block hash" autocomplete="off" spellcheck="false" required><button type="submit">Search <span aria-hidden="true">↗</span></button></div>
+        <p id="search-message" class="help" role="status">Enter a block number or a full 64-character hash.</p>
+      </form>
+    </section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <section id="overview" aria-label="Network overview">
+      <div class="section-line"><h2>Network overview</h2><div class="refresh"><span id="freshness">Connecting to the node…</span><button id="refresh" class="text-button" type="button">Refresh</button></div></div>
+      <div class="metrics">
+        <article><h3>Latest block</h3><p id="tip" class="metric">—</p><span id="sync">Waiting for node</span></article>
+        <article><h3>Network difficulty</h3><p id="difficulty" class="metric">—</p><span>Required work for the next block</span></article>
+        <article><h3>Observed block interval</h3><p id="interval" class="metric">—</p><span id="target">Recent average · target pending</span></article>
+        <article><h3>Estimated hash rate</h3><p id="hashrate" class="metric">—</p><span>Estimate from recent block history</span></article>
+      </div>
+      <div class="section-line ledger-heading"><h2>Latest blocks <span id="block-count"></span></h2><span id="network-detail" class="muted"></span></div>
+      <div class="table-wrap"><table><caption class="sr-only">Recent ForgeCoin blocks</caption><thead><tr><th scope="col">Height</th><th scope="col">Block hash</th><th scope="col">Mined</th><th scope="col" class="numeric">Transactions</th><th scope="col" class="numeric">Reward · FORGE</th><th scope="col" class="numeric">Difficulty</th></tr></thead><tbody id="blocks"><tr><td colspan="6" class="empty">Loading the latest blocks…</td></tr></tbody></table></div>
+      <div class="pagination"><span class="muted">Block times are shown in your local time.</span><button id="older" class="secondary" type="button" disabled>Load older blocks ↓</button></div>
+    </section>
+    <section id="detail" hidden aria-label="Ledger details"><a href="#home" class="back">← Network overview</a><div id="detail-content" aria-live="polite"></div></section>
+    <aside class="privacy"><span class="privacy-symbol" aria-hidden="true">◈</span><div><h2>A public ledger. Private payments.</h2><p>Transaction amounts and wallet balances are not publicly visible. This explorer never asks for your wallet, password, or recovery phrase.</p></div></aside>
+  </main>
+  <footer><span>ForgeCoin <span class="muted">/ Network explorer</span></span><span class="muted">Development network · Launch rules are not final</span></footer>
+</body>
+</html>
