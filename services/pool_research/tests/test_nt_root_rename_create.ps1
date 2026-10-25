@@ -61,7 +61,8 @@ public static class NtRootProbe {
           var final=new StringBuilder(32768);
           uint n=GetFinalPathNameByHandleW(child,final,(uint)final.Capacity,0);
           if(n==0 || n>=final.Capacity) throw new InvalidOperationException("Could not resolve final handle");
-          // Routing-only probe: no content written; ACL tested separately.\n          return final.ToString();
+          // Routing-only probe: no content written; ACL tested separately.
+          return final.ToString();
         }
       } finally {
         if(structPtr!=IntPtr.Zero) Marshal.FreeHGlobal(structPtr);
