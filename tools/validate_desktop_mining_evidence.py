@@ -19,6 +19,7 @@ REQUIRED = {
 }
 HEX64 = re.compile(r"^[a-fA-F0-9]{64}$")
 HEX40 = re.compile(r"^[a-fA-F0-9]{40}$")
+SAFE_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_./:-]{0,199}$")
 SECRET_KEYS = {"seed", "mnemonic", "password", "private_key", "spend_key",
                "view_key", "secret", "rpc_password", "template_blob", "token"}
 
@@ -70,6 +71,8 @@ def validate(payload):
                 problems.append(mode + "." + check + " not passed")
             elif not isinstance(entry.get("evidence_ref"), str) or not entry["evidence_ref"].strip():
                 problems.append(mode + "." + check + " missing evidence_ref")
+            elif not SAFE_REF.fullmatch(entry["evidence_ref"]) or ".." in entry["evidence_ref"] or "://" in entry["evidence_ref"]:
+                problems.append(mode + "." + check + " unsafe evidence_ref")
     return problems
 
 
@@ -97,8 +100,14 @@ def self_test():
     invalid = json.loads(json.dumps(valid))
     invalid["network"] = "public mainnet"
     assert any("isolated" in x for x in validate(invalid))
+    invalid = json.loads(json.dumps(valid))
+    invalid["solo"]["block_found"]["evidence_ref"] = "../../wallet.keys"
+    assert any("unsafe evidence_ref" in x for x in validate(invalid))
+    invalid = json.loads(json.dumps(valid))
+    invalid["pool"]["telemetry"]["evidence_ref"] = "https://example.com/log?token=secret"
+    assert any("unsafe evidence_ref" in x for x in validate(invalid))
     assert validate({})
-    print("PASS: 7 evidence validation controls")
+    print("PASS: 9 evidence validation controls")
 
 
 def main():
