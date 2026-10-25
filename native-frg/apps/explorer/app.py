@@ -41,24 +41,39 @@ def node(method, params=None, direct=False):
         data = json.loads(raw)
     except (OSError, ValueError, urllib.error.URLError) as exc:
         raise Unavailable() from exc
-    if data.get('error'):
-        if data['error'].get('code') in (-2,-5): raise Missing()
+    if not isinstance(data, dict): raise Unavailable()
+    error = data.get('error')
+    if error is not None:
+        if isinstance(error, dict) and error.get('code') in (-2, -5): raise Missing()
         raise Unavailable()
-    result = data if direct else data.get('result', {})
-    if result.get('status') not in (None,'OK'): raise Unavailable()
+    result = data if direct else data.get('result')
+    if not isinstance(result, dict): raise Unavailable()
+    if result.get('status') not in (None, 'OK'): raise Unavailable()
     return result
 
 def info(): return cached('info', lambda: node('get_info'))
 def wide(obj, name):
-    return int(obj['wide_'+name],16) if obj.get('wide_'+name) else int(obj.get(name,0))
+    try:
+        value = int(obj['wide_'+name],16) if obj.get('wide_'+name) else int(obj.get(name,0))
+        if value < 0: raise ValueError('negative value')
+        return value
+    except (KeyError, TypeError, ValueError) as exc:
+        raise Unavailable() from exc
 def header(h):
-    return {'height':h['height'],'hash':h['hash'],'timestamp':h['timestamp'],
-        'difficulty':str(wide(h,'difficulty')),'reward_atomic':str(h['reward']),
-        'tx_count':h.get('num_txes',0),'size':h.get('block_size',0),
-        'major_version':h['major_version'],'prev_hash':h['prev_hash'],
-        'orphan_status':h.get('orphan_status',False)}
+    try:
+        if not isinstance(h, dict): raise TypeError('not a header')
+        return {'height':h['height'],'hash':h['hash'],'timestamp':h['timestamp'],
+            'difficulty':str(wide(h,'difficulty')),'reward_atomic':str(h['reward']),
+            'tx_count':h.get('num_txes',0),'size':h.get('block_size',0),
+            'major_version':h['major_version'],'prev_hash':h['prev_hash'],
+            'orphan_status':h.get('orphan_status',False)}
+    except (KeyError, TypeError, ValueError) as exc:
+        raise Unavailable() from exc
 def headers(start,end):
-    return node('get_block_headers_range', {'start_height':start,'end_height':end,'fill_pow_hash':False})['headers']
+    value = node('get_block_headers_range', {'start_height':start,'end_height':end,'fill_pow_hash':False}).get('headers')
+    if not isinstance(value, list) or not value or not all(isinstance(h, dict) for h in value):
+        raise Unavailable()
+    return value
 def height_arg(value):
     if not DIGITS.fullmatch(value): raise ValueError('Invalid block height.')
     return int(value)
@@ -69,7 +84,9 @@ def home(): return app.send_static_file('index.html')
 @app.get('/api/overview')
 def overview():
     def load():
-        n=info(); tip=max(0,n['height']-1)
+        n=info()
+        if n['height'] < 1: raise Unavailable()
+        tip=n['height']-1
         hs=headers(max(0,tip-60),tip); hs.sort(key=lambda x:x['height'])
         span=hs[-1]['timestamp']-hs[0]['timestamp'] if len(hs)>1 else 0
         work=wide(hs[-1],'cumulative_difficulty')-wide(hs[0],'cumulative_difficulty') if len(hs)>1 else 0
@@ -86,10 +103,15 @@ def overview():
 @app.get('/api/blocks')
 def blocks():
     before=request.args.get('before')
-    end=info()['height']-1 if before is None else height_arg(before)
-    if end>=info()['height']: raise Missing()
+    n=info()
+    if n['height'] < 1: raise Unavailable()
+    end=n['height']-1 if before is None else height_arg(before)
+    if end>=n['height']: raise Missing()
     start=max(0,end-19)
-    return jsonify(cached(('blocks',end), lambda:{'blocks':[header(h) for h in reversed(headers(start,end))], 'next_before':start-1 if start else None}))
+    # A new canonical tip invalidates cached pages after any chain reorganization.
+    return jsonify(cached(('blocks',end,n['top_block_hash']), lambda:{
+        'blocks':[header(h) for h in reversed(headers(start,end))],
+        'next_before':start-1 if start else None}))
 
 @app.get('/api/block/<identifier>')
 def block(identifier):
@@ -103,24 +125,36 @@ def block(identifier):
         return {'header':header(h),'miner_tx_hash':b.get('miner_tx_hash') or h.get('miner_tx_hash'),
             'tx_hashes':b.get('tx_hashes',[]),
             'confirmations':0 if h.get('orphan_status') else max(0,info()['height']-h['height'])}
-    return jsonify(cached(('block',identifier.lower()),load))
+    # Bind cached confirmations and canonical status to a particular tip.
+    return jsonify(cached(('block',identifier.lower(),info()['top_block_hash']),load))
 
 @app.get('/api/tx/<txid>')
 def transaction(txid):
     if not HEX.fullmatch(txid): raise ValueError('Enter a 64-character transaction hash.')
     def load():
         result=node('get_transactions',{'txs_hashes':[txid.lower()],'decode_as_json':True,'prune':True},direct=True)
-        if not result.get('txs'): raise Missing()
-        tx=result['txs'][0]; data=json.loads(tx['as_json']); coinbase=any('gen' in v for v in data.get('vin',[]))
-        return {'hash':txid.lower(),'in_pool':bool(tx['in_pool']),
-            'block_height':None if tx['in_pool'] else tx.get('block_height'),
-            'confirmations':0 if tx['in_pool'] else tx.get('confirmations',0),
-            'timestamp':tx.get('received_timestamp') if tx['in_pool'] else tx.get('block_timestamp'),
-            'fee_atomic':None if coinbase else (str(data['rct_signatures']['txnFee']) if 'txnFee' in data.get('rct_signatures',{}) else None),
-            'version':data['version'],'unlock_time':data.get('unlock_time',0),
-            'inputs':len(data.get('vin',[])),'outputs':len(data.get('vout',[])),
-            'size':len(tx.get('as_hex') or tx.get('pruned_as_hex',''))//2,'coinbase':coinbase}
-    return jsonify(cached(('tx',txid.lower()),load))
+        txs=result.get('txs')
+        if txs is None or txs == []: raise Missing()
+        if not isinstance(txs, list) or not isinstance(txs[0], dict): raise Unavailable()
+        try:
+            tx=txs[0]
+            data=json.loads(tx['as_json'])
+            if not isinstance(data, dict): raise ValueError('invalid transaction')
+            coinbase=any(isinstance(v, dict) and 'gen' in v for v in data.get('vin',[]))
+            is_pool=bool(tx['in_pool'])
+            return {'hash':txid.lower(),'in_pool':is_pool,
+                'block_height':None if is_pool else tx.get('block_height'),
+                'confirmations':0 if is_pool else tx.get('confirmations',0),
+                'timestamp':tx.get('received_timestamp') if is_pool else tx.get('block_timestamp'),
+                'fee_atomic':None if coinbase else (str(data['rct_signatures']['txnFee']) if 'txnFee' in data.get('rct_signatures',{}) else None),
+                'version':data['version'],'unlock_time':data.get('unlock_time',0),
+                'inputs':len(data.get('vin',[])),'outputs':len(data.get('vout',[])),
+                'size':len(tx.get('as_hex') or tx.get('pruned_as_hex',''))//2,'coinbase':coinbase}
+        except (KeyError, TypeError, ValueError) as exc:
+            raise Unavailable() from exc
+    # Limit stale confirmation status across reorganizations or new blocks.
+    n=info()
+    return jsonify(cached(('tx',txid.lower(),n['top_block_hash'],n.get('tx_pool_size')),load))
 
 @app.errorhandler(ValueError)
 def invalid(e): return jsonify(error=str(e)),400
