@@ -38,7 +38,18 @@ public static class NtRootProbe {
       if(parent.IsInvalid) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
       // Deliberately rename a disposable directory while its handle is pinned.
       string relocated=directory+"-relocated";
-      Task renamer=Task.Run(() => { Directory.Move(directory,relocated); Directory.CreateDirectory(directory); });
+      Task renamer=Task.Run(() => {
+        for(int attempt=0;attempt<50;attempt++) {
+          try {
+            Directory.Move(directory,relocated);
+            Directory.CreateDirectory(directory);
+            return;
+          } catch(IOException) {
+            if(attempt==49) throw;
+            System.Threading.Thread.Sleep(10);
+          }
+        }
+      });
       string name="nt-probe-"+Guid.NewGuid().ToString("N")+".txt";
       IntPtr namePtr=Marshal.StringToHGlobalUni(name);
       IntPtr structPtr=IntPtr.Zero;
