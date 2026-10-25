@@ -115,3 +115,68 @@ The resulting `build-disposable/bin/forge-wallet-rpc.exe` is **34,279,313 bytes*
 Running the hardened read-only preflight with both native binaries reports `FOUND` for daemon and wallet RPC, while desktop and XMRig remain `BLOCKED`, ending with exit code **1** and `NOT VALIDATED`. Structural PE checks do not verify runtime dependencies, address/chain correctness, signatures, or provenance.
 
 **Packaging is still blocked:** Tauri expects `binaries/forged-x86_64-pc-windows-msvc.exe` and `binaries/forge-wallet-rpc-x86_64-pc-windows-msvc.exe`. The current artifacts are MinGW-built, not verified MSVC-target sidecars. Do not simply rename these artifacts to claim MSVC build provenance; audit compatibility and runtime dependency packaging first. No XMRig executable, network-isolated true share verifier, Solo/Pool mining, mature reward, or payout acceptance has been verified.
+
+## Sidecar dependency audit and guarded staging follow-up
+
+The previous paragraph describes the gate before this follow-up. Tauri's suffix
+is a host artifact selection convention, not a claim about the sidecar compiler:
+https://v2.tauri.app/develop/sidecar/ . These sidecars run as separate Windows
+processes and do not link MinGW C++ objects into the MSVC Rust application.
+They remain MinGW-built artifacts regardless of their packaging filenames.
+
+Read-only inspection with `C:\msys64\mingw64\bin\objdump.exe -p` on each
+native executable found the same imports: `ADVAPI32.dll`, `CRYPT32.dll`,
+`IPHLPAPI.DLL`, `KERNEL32.dll`, `msvcrt.dll`, `MSWSOCK.dll`, `SHELL32.dll`,
+`USER32.dll`, `WS2_32.dll`. No MinGW runtime DLL was listed. This supports
+staging the exact reviewed bytes without shipping additional MinGW DLLs;
+it does not prove clean-machine execution, dynamic LoadLibrary behavior,
+minimum supported Windows version, or installer correctness.
+
+`tools/stage_windows_sidecars.py` pins the two digests above and explicitly
+records MinGW provenance and source commit. It validates the whole set before
+writing, then writes the exact bytes it hashed. Other builds require a fresh
+dependency/provenance review and digest update. From the repository root:
+
+```powershell
+python tools/stage_windows_sidecars.py --source build-disposable/bin --destination apps/desktop-tauri/src-tauri/binaries
+```
+
+Both the Windows Cargo build script and development staging script reject
+missing/unreviewed artifacts. Only `x86_64-pc-windows-msvc` host packaging has
+reviewed sidecars; other Windows targets fail closed. Python is now an explicit
+Windows build prerequisite. Generated executables remain ignored and uncommitted.
+This is a local packaging prerequisite, not reproducible-build attestation or
+release approval. Keep staged files immutable during builds; concurrent mutation
+after build-script validation is not prevented by a digest inventory guard.
+
+Validation on TREYS_DELL_RTX:
+
+- Six staging/preflight Python tests passed, including all-set refusal before
+  writes and staged-artifact replacement detection.
+- Offline locked desktop compilation succeeded with the reviewed sidecars.
+  Rust library tests: four passed, two process-launching tests ignored.
+- Thirteen Python RandomX input/protocol/ledger tests passed; these do not run
+  native RandomX proof validation. Nine evidence-validator controls passed.
+- PowerShell development staging completed after digest validation.
+- Explicitly selecting the ignored mining test without the isolation
+  acknowledgement failed immediately at its first assertion (Cargo exit 101),
+  before directory creation, socket binding, or process launch. This intentional
+  refusal is evidence of the guard, not a passing mining integration test.
+
+The mining test now requires `FORGE_TEST_EGRESS_DENIED=externally-enforced`.
+This is an operator acknowledgement only; it does not configure or verify OS
+isolation. Do not set it on an ordinary connected host. Establish a disconnected
+VM or independently tested non-loopback egress denial before any future launch.
+The fixture is explicitly labeled protocol-only and still acknowledges shares
+without native RandomX verification.
+
+No XMRig candidate was supplied or found in the disposable checkout/build output.
+No arbitrary installed miner or wallet locations were searched. Upstream documents
+donation as disabled in source, and upstream `src/donate.h` sets the minimum to
+one percent: https://xmrig.com/docs/miner and
+https://github.com/xmrig/xmrig/blob/master/src/donate.h . The existing zero config
+must not be treated as a no-egress guarantee. Pinned XMRig provenance, its actual
+runtime dependencies/donation policy, OS isolation, native valid/invalid/stale
+share verification, clean-machine installer execution, Solo/Pool block acceptance,
+mature rewards and payouts remain unresolved. No mining, wallet, daemon, desktop
+application, installer, public pool or chain service was launched in this follow-up.

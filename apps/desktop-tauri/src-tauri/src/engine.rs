@@ -844,8 +844,15 @@ mod tests {
         assert!(validate_settings(&s).is_err());
     }
     #[test]
-    #[ignore = "Runs an isolated offline node and optional local XMRig; never connects to peers"]
+    #[ignore = "Requires externally enforced egress denial; protocol fixture is not PoW acceptance"]
     fn offline_mining_compatibility() {
+        // This acknowledgement is a prerequisite, not enforcement. A host firewall
+        // or disconnected VM must deny non-loopback egress before any launch.
+        assert_eq!(
+            std::env::var("FORGE_TEST_EGRESS_DENIED").as_deref(),
+            Ok("externally-enforced"),
+            "Establish OS-level non-loopback egress denial before running this test"
+        );
         let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("target")
             .join(format!("mining-smoke-{}", std::process::id()));
@@ -1025,7 +1032,7 @@ mod tests {
                 accepted,
                 "XMRig did not produce an accepted offline block within 60 seconds"
             );
-            // A loopback Stratum fixture verifies the real Pool-mode launcher and submitted share.
+            // Protocol smoke test only: this fixture does not validate RandomX PoW.
             use std::io::{BufRead, BufReader, Write};
             let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
             listener.set_nonblocking(true).unwrap();

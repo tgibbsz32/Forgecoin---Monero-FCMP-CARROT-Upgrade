@@ -1,0 +1,59 @@
+"""Stage only the reviewed system-DLL-only MinGW artifacts; never execute them.
+
+The Tauri suffix selects the host package, not the sidecar compiler ABI.
+Changing an artifact requires a new dependency audit and digest review here.
+"""
+import argparse
+import hashlib
+from pathlib import Path
+
+TARGET = "x86_64-pc-windows-msvc"
+SOURCE_COMMIT = "0f3a9a2820a6285838fb45227a34c65957615e38"
+# MinGW64 Release, ARCH_ID=x86_64. Both PE import tables were inspected with
+# objdump -p: ADVAPI32, CRYPT32, IPHLPAPI, KERNEL32, msvcrt, MSWSOCK,
+# SHELL32, USER32, WS2_32. No external runtime DLLs were imported.
+REVIEWED = {
+    "forged": "600a76d02fbf9f46825ca989daf1c74187aa3bf524d651c35cfe6fbbc1fd2836",
+    "forge-wallet-rpc": "34a3f72add57fb96beb3a822d28c910e1e6eadb2f6acfdee01a1a901de7b12e0",
+}
+
+
+def validated(directory, suffixed=False):
+    payloads = {}
+    for name, digest in REVIEWED.items():
+        filename = f"{name}-{TARGET}.exe" if suffixed else f"{name}.exe"
+        payload = (Path(directory) / filename).read_bytes()
+        if hashlib.sha256(payload).hexdigest() != digest:
+            raise ValueError(f"Unreviewed sidecar: {filename}; audit provenance and DLL imports first")
+        payloads[name] = payload
+    return payloads
+
+
+def stage(source, destination):
+    # Validate the complete set before writing any artifact. Copy exactly the
+    # bytes hashed, so source replacement cannot substitute unreviewed bytes.
+    payloads = validated(source)
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    for name, payload in payloads.items():
+        (destination / f"{name}-{TARGET}.exe").write_bytes(payload)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", type=Path)
+    parser.add_argument("--destination", type=Path, required=True)
+    args = parser.parse_args()
+    try:
+        if args.source:
+            stage(args.source, args.destination)
+        else:
+            validated(args.destination, suffixed=True)
+    except (OSError, ValueError) as error:
+        parser.exit(1, f"BLOCKED: {error}\n")
+    print(f"Reviewed MinGW sidecars for Tauri {TARGET}; source {SOURCE_COMMIT}")
+    print("Packaging prerequisite only; clean-machine runtime and mining acceptance outstanding")
+
+
+if __name__ == "__main__":
+    main()
