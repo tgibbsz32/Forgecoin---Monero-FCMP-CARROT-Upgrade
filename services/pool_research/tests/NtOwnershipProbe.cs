@@ -6,6 +6,15 @@ using System.Security.Principal;
 using System.Text;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+// Internal test seam: callers cannot substitute an allocator through Run.
+internal interface IProbeAllocator {
+  IntPtr Allocate(int bytes);
+  void Free(IntPtr pointer);
+}
+internal sealed class HGlobalProbeAllocator : IProbeAllocator {
+  public IntPtr Allocate(int bytes) { return Marshal.AllocHGlobal(bytes); }
+  public void Free(IntPtr pointer) { Marshal.FreeHGlobal(pointer); }
+}
 public static class NtOwnershipProbe {
   [StructLayout(LayoutKind.Sequential)] struct UNICODE_STRING {
     public ushort Length; public ushort MaximumLength; public IntPtr Buffer;
@@ -63,6 +72,9 @@ public static class NtOwnershipProbe {
     } finally {LocalFree(sd);}
   }
   public static void Run(string directory,string fault) {
+    RunWithAllocator(directory,fault,new HGlobalProbeAllocator());
+  }
+  internal static void RunWithAllocator(string directory,string fault,IProbeAllocator allocator) {
     using(var parent=CreateFileW(directory,0x80000000,7,IntPtr.Zero,3,
       0x02000000 | 0x00200000, IntPtr.Zero)) {
       if(parent.IsInvalid) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
@@ -74,12 +86,14 @@ public static class NtOwnershipProbe {
       IntPtr sdPtr=IntPtr.Zero;
       SafeFileHandle child=null;
       try {
-        namePtr=Marshal.StringToHGlobalUni(name);
+        byte[] nameBytes=Encoding.Unicode.GetBytes(name+"\0");
+        namePtr=allocator.Allocate(nameBytes.Length);
         Inject(fault,"name_allocated");
+        Marshal.Copy(nameBytes,0,namePtr,nameBytes.Length);
         UNICODE_STRING uni=new UNICODE_STRING();
         uni.Length=(ushort)(name.Length*2); uni.MaximumLength=(ushort)(uni.Length+2);
         uni.Buffer=namePtr;
-        structPtr=Marshal.AllocHGlobal(Marshal.SizeOf(typeof(UNICODE_STRING)));
+        structPtr=allocator.Allocate(Marshal.SizeOf(typeof(UNICODE_STRING)));
         Inject(fault,"struct_allocated");
         Marshal.StructureToPtr(uni,structPtr,false);
         OBJECT_ATTRIBUTES attrs=new OBJECT_ATTRIBUTES();
@@ -90,7 +104,7 @@ public static class NtOwnershipProbe {
         var descriptor=new RawSecurityDescriptor("O:"+me+"G:SYD:P(A;;FA;;;"+me+")(A;;FA;;;SY)(A;;FA;;;BA)");
         byte[] sdBytes=new byte[descriptor.BinaryLength];
         descriptor.GetBinaryForm(sdBytes,0);
-        sdPtr=Marshal.AllocHGlobal(sdBytes.Length);
+        sdPtr=allocator.Allocate(sdBytes.Length);
         Inject(fault,"sd_allocated");
         Marshal.Copy(sdBytes,0,sdPtr,sdBytes.Length);
         attrs.SecurityDescriptor=sdPtr;
@@ -138,9 +152,9 @@ public static class NtOwnershipProbe {
         // FileStream also disposes this SafeFileHandle on success; Dispose is
         // idempotent, and this covers failure before stream construction too.
         if(child!=null) child.Dispose();
-        if(sdPtr!=IntPtr.Zero) Marshal.FreeHGlobal(sdPtr);
-        if(structPtr!=IntPtr.Zero) Marshal.FreeHGlobal(structPtr);
-        if(namePtr!=IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
+        if(sdPtr!=IntPtr.Zero) allocator.Free(sdPtr);
+        if(structPtr!=IntPtr.Zero) allocator.Free(structPtr);
+        if(namePtr!=IntPtr.Zero) allocator.Free(namePtr);
       }
     }
   }

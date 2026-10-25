@@ -67,3 +67,17 @@ force GC, and injected post-allocation exceptions are not actual out-of-memory
 or native allocator failures. Concurrent hostile mutation, process termination,
 all NTSTATUS outcomes and production writer integration remain unvalidated.
 No wallet, keys, daemon/network or production service was used or changed.
+
+## Allocation-failure follow-up
+
+The shared probe now has an internal allocator seam. Its normal entry point uses
+HGlobal allocation/free; the regression injects OutOfMemoryException before each
+of the three allocations, while earlier successful allocations are real native
+buffers. Thirteen cases assert exact attempt, allocation and free counts plus
+zero outstanding pointers before any forced GC. Unknown/double frees fail.
+The test harness frees any remaining tracked buffers after reporting failure.
+This is deterministic simulated allocation failure, not actual OS exhaustion.
+GetSecurityInfo/LocalFree and runtime-internal allocations are outside this ledger.
+
+The allocation suite requires an empty protected disposable fixture. Run it with
+`test_nt_allocation_cleanup.ps1 -Directory <fixture>` in Windows PowerShell.
