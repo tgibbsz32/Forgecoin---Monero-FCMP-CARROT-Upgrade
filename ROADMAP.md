@@ -13,6 +13,8 @@
 5. Validate wallet restore/send/receive, CPU solo mining, XMRig/pool compatibility, node discovery and RPC isolation; rehearse public bootstrap and incident recovery.
 6. Complete the online blockchain explorer from `apps/explorer`: block/transaction lookup, pagination, confirmations and reorg-aware data; add API/UI and isolated-node tests, independent security review, HTTPS deployment, monitoring and rollback. Publish the public URL only after external verification. Finish the website, verified downloads and honest network statistics; never label placeholder data as live.
 
+- **Initial Windows desktop release decision:** Solo **and** user-configured Pool mining are both mandatory supported and tested modes for desktop V1. Before desktop distribution, verify actual solo block acceptance/maturity and real FRG-compatible test-pool accepted shares, reward accounting and payout, plus start/stop/reconnect/telemetry behavior. Use disposable wallets and isolated infrastructure; log evidence without secrets. If either mode cannot be demonstrated, **hold the desktop release** rather than describing it as fully tested. An official public pool deployment remains Phase 2 and is **not** a prerequisite for testing against a compatible private pool.
+
 ## Phase 2 — Adoption, mining pool and noncustodial treasury
 
 - **Build and deploy the official native FRG pool:** implement FRG-compatible Stratum/RandomX validation, durable share accounting, reorg/maturity handling and safe native payouts. The **1% operator fee** applies to eligible pooled rewards, separately from payout transaction costs; exact payout rules must be published before beta. The **100-worker target** is not verified capacity.

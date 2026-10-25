@@ -14,6 +14,11 @@
 - Verify genesis, network UUID, v16 activation at height 1 and monetary constants.
 - Test daemon startup, two-node synchronization, wallet recovery and transfers.
 - Test mining start/stop, address creation, explorer and desktop resizing.
+- **Desktop V1 mining release gate (both modes required):** Before labeling the Windows desktop build ready, execute and record end-to-end **Solo** and **Pool** mining acceptance tests on an isolated, disposable FRG network and a compatible test pool. A process that merely starts does **not** count as a pass.
+  - Solo: start/stop the miner through the packaged desktop; verify a block is found, accepted by the daemon, survives restart/reorganization checks where applicable, and matures to the test wallet under the current coinbase rules.
+  - Pool: connect the desktop-managed, user-installed XMRig to an independently verified FRG-compatible *test* pool; demonstrate valid RandomX shares accepted and invalid/stale submissions rejected; exercise reconnect, worker telemetry, stop and failure reporting; reconcile a credited test reward and matured payout to a disposable wallet, including accounting and restart behavior.
+  - Capture source commit, binary hashes, Windows version, test chain parameters, XMRig version, timestamps, relevant logs and results. No keys, passwords, wallet seeds or private templates may enter the evidence or repository.
+  - If either mode lacks compatible infrastructure or verifiable results, mark that mode **NOT VALIDATED** and **block the initial desktop release**; do not substitute earlier offline pool-share research or a running-process screenshot for the acceptance criteria. An official public pool is a separate later-phase deliverable, not required for V1.
 - Check compiled binaries for personal build paths and debug information.
 - Do not change genesis or restore inherited Monero checkpoints or seed nodes.
 - If including XMRig, include its matching source and license.
