@@ -8,11 +8,13 @@ $link=Join-Path $root "junction"
 [IO.Directory]::CreateDirectory($target) | Out-Null
 try {
   $result=New-Item -ItemType Junction -Path $link -Target $target -ErrorAction Stop
-  $output=& $Inspector -Directory $link 2>&1
-  if ($LASTEXITCODE -eq 0 -and -not ($output | Out-String).Contains("Reparse point")) {
-    throw "Junction unexpectedly passed path validation"
+  $caught = $null
+  try {
+    & $Inspector -Directory $link | Out-Null
+  } catch {
+    $caught = $_.Exception.Message
   }
-  if (-not ($output | Out-String).Contains("Reparse point")) {
+  if ($null -eq $caught -or -not $caught.Contains("Reparse point")) {
     throw "Junction was not explicitly rejected as a reparse point"
   }
   Write-Output "PASS: junction is rejected by read-only path inspection"
