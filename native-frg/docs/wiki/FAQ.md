@@ -1,0 +1,41 @@
+# ForgeCoin FAQ
+
+### Is ForgeCoin's new mainnet live?
+
+**No.** An older development chain/explorer has been running and a separate fresh-mainnet candidate has isolated test evidence. The old daemon may report `nettype=mainnet`, but that does not mean a new approved launch occurred. See [status](Current-Status.md).
+
+### Can I download a tested Windows wallet and mine today?
+
+The Tauri app and mining controls exist in source, but initial Solo-and-Pool acceptance and reviewed distribution artifacts remain blocked. Do not interpret a GitHub source checkout, PE-header check, or a “mining started” UI state as release validation.
+
+### Is there an official ForgeCoin mining pool?
+
+**No production pool is accepting public shares or paying miners.** The [pool page](https://150.136.209.227/pool/) is a static readiness page. The research listener uses fixed synthetic work, loopback sockets and an explicitly uncredited journal.
+
+### How are new FRG coins planned to be issued?
+
+The current *proposed fresh-mainnet* policy is no founder/team/ICO premine, 100% of block subsidies paid to PoW miners, a primary emission **reference** of 50M FRG, and a continuing **0.20 FRG tail reward per block**. Because the tail is perpetual, do **not** advertise an absolute capped supply. These rules require final audited candidate verification.
+
+### What are the difficulty and block-time targets?
+
+The design uses a two-minute block target, proposed **500,000** starting difficulty and **400,000** floor with an LWMA90 bootstrap plan. These should not be confused with the old development-chain hardfork heights; publication does not mean activation.
+
+### Is the operator pool fee 1%?
+
+**Planned only:** the future official pool proposes a 1% fee on eligible pooled rewards, separate from transaction/payout costs and any third-party miner donation policies. Solo mining has no project pool operator fee. No fee is being collected by the synthetic test listener.
+
+### Is ForgeCoin tied to Solana or a wrapped token?
+
+No. V1 is a standalone, native FRG proof-of-work chain. User-deposit-backed wrapped FRG, swaps and other cross-chain projects are later research, not deployed features or additional mining issuance.
+
+### Will the wallet, website or pool need my seed phrase?
+
+A website or mining pool must **never** request your seed phrase or private spend key. Keep recovery material offline. An official wallet may show secrets locally during controlled backup; never paste them into a public issue or operator support message.
+
+### Are GitHub tests proof that mining works?
+
+Not necessarily. “21 tests passed” can mean parser/validation checks, not accepted blocks. Synthetic RandomX work does **not** establish a real pool payout. See [testing and release requirements](Testing-and-Release.md).
+
+### How do I report an issue?
+
+For ordinary, non-sensitive defects, use [GitHub Issues](https://github.com/tgibbsz32/forgecoin/issues) with source version, expected/actual behavior and sanitized logs. For exploitable defects or secret exposure, use the [security reporting process](../../SECURITY.md), not a public proof of exploit.

@@ -1,0 +1,25 @@
+[Unit]
+Description=ForgeCoin read-only block explorer
+After=network.target forgecoin.service
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/forgecoin-explorer
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/forgecoin-explorer/.venv/bin/python -m gunicorn --no-control-socket --bind 127.0.0.1:19800 --workers 2 --threads 4 --timeout 30 --max-requests 1000 --max-requests-jitter 100 --access-logfile - app:app
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=256M
+TasksMax=64
+[Install]
+WantedBy=multi-user.target
+

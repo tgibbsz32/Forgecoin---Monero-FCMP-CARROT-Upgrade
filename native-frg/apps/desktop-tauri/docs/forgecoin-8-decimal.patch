@@ -1,0 +1,21 @@
+diff --git a/src/cryptonote_basic/cryptonote_format_utils.cpp b/src/cryptonote_basic/cryptonote_format_utils.cpp
+index 923ad64af..074170f02 100644
+--- a/src/cryptonote_basic/cryptonote_format_utils.cpp
++++ b/src/cryptonote_basic/cryptonote_format_utils.cpp
+@@ -1131,6 +1131,7 @@ namespace cryptonote
+   {
+     switch (decimal_point)
+     {
++      case 8:
+       case 12:
+       case 9:
+       case 6:
+@@ -1154,6 +1155,8 @@ namespace cryptonote
+       decimal_point = default_decimal_point;
+     switch (decimal_point)
+     {
++      case 8:
++        return "forgecoin";
+       case 12:
+         return "monero";
+       case 9:

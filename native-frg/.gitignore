@@ -1,0 +1,87 @@
+# Build output
+/build/
+/dist/
+/out/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.exe
+*.pdb
+*.sys
+*.zip
+
+# Runtime data and secrets
+data.mdb
+lock.mdb
+p2pstate.bin
+poolstate.bin
+wallets/
+blockchain/
+ringdb/
+*.keys
+*.wallet
+*.log
+bitmonero.conf
+forgecoin.conf
+
+# Public encrypted fixtures used by the inherited wallet tests
+!tests/data/wallet_00fd416a.keys
+!tests/data/wallet_9svHk1.keys
+
+# Editors and operating systems
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Local desktop dependencies
+/apps/desktop/bin/
+/apps/desktop/vendor/
+/apps/desktop/release/
+
+# Private maintenance material and signing credentials
+/private-notes/
+/tmp/
+/outputs/
+/work/
+.env
+.env.*
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.key
+*.asc
+id_rsa*
+id_ed25519*
+# Android and compiler-generated output
+*.apk
+*.aab
+*.so
+.gradle/
+local.properties
+**/build/
+**/dist/
+
+# Upstream public verification keys and source packaging recipes
+!utils/gpg_keys/*.asc
+!external/randomx/doc/tevador.asc
+!external/trezor-common/udev/dist/
+!external/trezor-common/udev/dist/**
+
+# Modern desktop: generated dependencies, sidecars and local runtime data
+**/node_modules/
+**/target/
+/apps/desktop-tauri/src-tauri/binaries/
+/apps/desktop-tauri/src-tauri/forgecoin-data/
+/apps/desktop-tauri/src-tauri/gen/
+**/__pycache__/
+**/.venv/
