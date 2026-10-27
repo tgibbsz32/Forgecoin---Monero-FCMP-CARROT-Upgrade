@@ -1,0 +1,29 @@
+name: FCMP++ proof backend
+on:
+  pull_request:
+    paths:
+      - 'native-frg/src/fcmp_pp/**'
+      - 'native-frg/tests/fcmp_port/**'
+      - 'native-frg/cmake/ForgeFcmpBackend.cmake'
+      - '.github/workflows/fcmp-backend.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proof-backend:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/fcmp-target
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show active-toolchain
+      - name: Full membership proof roundtrip and adversarial FFI cases
+        run: cargo test --locked --manifest-path native-frg/src/fcmp_pp/fcmp_pp_rust/Cargo.toml --lib -j 2
+      - name: Build actual static proof backend
+        run: cargo build --locked --manifest-path native-frg/src/fcmp_pp/fcmp_pp_rust/Cargo.toml -j 2
+      - name: Compile and execute native C ABI tests
+        shell: bash
+        run: |
+          gcc -std=c11 -I native-frg/src/fcmp_pp/fcmp_pp_rust native-frg/tests/fcmp_port/backend_ffi.c \
+            "$CARGO_TARGET_DIR/debug/libfcmp_pp_rust.a" -ldl -lpthread -lm -o "$CARGO_TARGET_DIR/backend-ffi"
+          "$CARGO_TARGET_DIR/backend-ffi"

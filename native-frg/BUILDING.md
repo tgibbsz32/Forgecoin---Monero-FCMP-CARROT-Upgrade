@@ -40,3 +40,26 @@ The desktop wrapper has separate instructions in
 [apps/desktop/BUILDING.md](apps/desktop/BUILDING.md). Build the daemon and wallet
 from this tree before packaging. Do not substitute older patched release binaries
 and describe them as builds of this commit.
+
+## Windows native baseline verified 2026-10-25
+
+The imported development-chain native source compiled daemon, CLI wallet and wallet
+RPC with MSYS2 MinGW GCC 16.2.0 / CMake 4.4.3 / Ninja. Windows reports the processor
+as `AMD64`; the inherited root passes that spelling through while RandomX checks
+lowercase architecture names. Explicitly use `-DARCH_ID=x86_64` on this toolchain:
+
+```sh
+cmake -S . -B build -G Ninja -DMANUAL_SUBMODULES=1 -DARCH_ID=x86_64 -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+cmake --build build --target daemon simplewallet wallet_rpc_server --parallel 2
+```
+
+Without that option the attempted build compiled native sources but failed at
+link time with unresolved RandomX JIT functions. Reconfiguration with the option
+built the omitted JIT sources and all three executables successfully. This is
+build evidence for the imported native baseline, not FCMP/CARROT consensus,
+runtime, clean-machine, signing or release evidence. `ARCH=native` output is
+host-specific; portable release builds and independent reproduction are pending.
+RPC functional tests were skipped during configuration because the selected
+Python lacks requests, psutil, monotonic, zmq and deepdiff. Imported generated
+version metadata still identifies Monero 0.18.5.1 as a release; correct branding
+and release provenance must be addressed before packaging. See root STEP-008.
